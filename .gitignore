@@ -1,0 +1,11 @@
+# Ignore everything by default
+*
+
+# Keep this file
+!.gitignore
+
+# Keep everything under agents/ and commands/
+!agents/
+!agents/**
+!commands/
+!commands/**
