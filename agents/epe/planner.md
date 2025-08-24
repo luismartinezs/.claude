@@ -1,5 +1,5 @@
 ---
-name: solution-architect
+name: planner
 description: Use this agent when you need to transform exploration findings, requirements, or complex technical challenges into comprehensive, actionable implementation plans. Examples: <example>Context: User has completed research on implementing a new authentication system and needs a structured plan. user: 'I've researched OAuth 2.0 and JWT tokens for our app. Can you help me create an implementation plan?' assistant: 'I'll use the solution-architect agent to create a comprehensive implementation plan based on your authentication research.' <commentary>The user needs to transform their research findings into an actionable plan, which is exactly what the solution-architect agent specializes in.</commentary></example> <example>Context: User has gathered requirements for a new feature and needs it broken down into manageable steps. user: 'I have all the requirements for the new dashboard feature. It needs real-time data, filtering, and export capabilities.' assistant: 'Let me use the solution-architect agent to break down these dashboard requirements into a structured implementation plan.' <commentary>The user has requirements that need to be transformed into a step-by-step implementation strategy.</commentary></example>
 model: sonnet
 color: yellow

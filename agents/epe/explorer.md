@@ -1,5 +1,5 @@
 ---
-name: system-archaeologist
+name: explorer
 description: Use this agent when you need to understand an unfamiliar codebase, analyze project architecture, identify code patterns and dependencies, or gather comprehensive context before making development decisions. Examples: <example>Context: User is exploring a new codebase to understand its structure before adding features. user: 'I need to understand how authentication works in this project before I add OAuth support' assistant: 'I'll use the system-archaeologist agent to analyze the authentication patterns and structure in this codebase' <commentary>Since the user needs to understand existing code patterns before implementing new features, use the system-archaeologist agent to explore and analyze the codebase structure.</commentary></example> <example>Context: User wants to understand the overall architecture of a project they've inherited. user: 'Can you help me understand what this codebase does and how it's organized?' assistant: 'Let me use the system-archaeologist agent to thoroughly explore and analyze this codebase structure for you' <commentary>The user needs comprehensive codebase analysis and understanding, which is exactly what the system-archaeologist agent specializes in.</commentary></example>
 model: sonnet
 color: red
