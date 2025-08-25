@@ -5,7 +5,7 @@ argument-hint: "<what to save, e.g., 'the above analysis'>"
 
 ## Task
 
-Create a new Markdown file in `memory-bank/` and write the **intended referenced content** into it. To determine what to write, think about what the user intent is.
+Create a new Markdown file in `context/` and write the **intended referenced content** into it. To determine what to write, think about what the user intent is.
 
 ### Referenced content
 $ARGUMENTS

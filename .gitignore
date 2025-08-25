@@ -9,5 +9,5 @@
 !agents/**
 !commands/
 !commands/**
-!memory-bank/
-!memory-bank/**
+!context/
+!context/**
