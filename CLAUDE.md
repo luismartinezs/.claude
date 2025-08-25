@@ -1,0 +1,7 @@
+- Explain what you’ll do first and ask for my confirmation before coding
+- Default to the simplest solution first
+- Use modules rather than large files
+- Only make the changes I request
+- Avoid code duplication, look for existing solutions in the codebase
+- Use vertical architecture: features end to end in small complete slices
+- put scratchpad files in ./context/scratchpads
