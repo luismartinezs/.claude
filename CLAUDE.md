@@ -5,3 +5,5 @@
 - Avoid code duplication, look for existing solutions in the codebase
 - Use vertical architecture: features end to end in small complete slices
 - put scratchpad files in ./context/scratchpads
+- Prefer functional programming over class-based OOP
+- For javascript / typescript, use functional programming and avoid class syntax as much as possible

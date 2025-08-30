@@ -24,7 +24,7 @@ Audit the top churn files plus a random slice until you reach 10–20% of files 
 2. Run quick metrics
 
 * LOC per file: `cloc --by-file --quiet .`
-* Complexity: `python -m lizard -C 10 -T 2000 .` (adjust languages if needed)
+* Complexity: `python -m lizard -C 10 -T nloc=40 -T parameter_count=4 -x tests -x node_modules .` (adjust languages if needed)
 * Test duration: run unit tests only; time it.
 * Lint/format check: run repo scripts if present.
 
