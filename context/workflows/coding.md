@@ -28,7 +28,7 @@ Assumptions:
 - run typecheckers, linters, formatters...
 - commit the implementation
 - do not merge to master yet, branch from this feature branch, and repeat the loop to handle the next feature
-- once all the features of the milestone have been implemented, run the following steps. If you think any feel overkill, just skip them
+- once all the features of the milestone have been implemented, run the following steps. If you think any feel overkill, just skip them*
   - run security audit: repomix to gemini (large context), use the prompt context/prompts/security-audit.md, read output, and ask claude to solve what you consider that needs to be solve
   - run context/prompts/quality-assurance-checklist.md in a new claude code chat
     - [TODO]: would be better to turn into subagent
@@ -37,11 +37,17 @@ Assumptions:
     - PR-CHECKLIST.md is a file that you can customize for your repo, see context/templates/PR-CHECKLIST.md
 - merge to main branch
 
+* alternatively after each feature you can run the steps and merge to main, but I think it is a bit overkill. Running the audits after each milestone is probably ok
+
 ## other workflows
 
 Other workflows you might consider
 
 ### EPE
+- /explore
+- /plan
+- /execute
+
 ### OODA
 
 
