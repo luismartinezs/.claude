@@ -3,7 +3,11 @@
 - Use modules rather than large files
 - Only make the changes I request
 - Avoid code duplication, look for existing solutions in the codebase
-- Use vertical architecture: features end to end in small complete slices
 - put scratchpad files in ./context/scratchpads
 - Prefer functional programming over class-based OOP
 - For javascript / typescript, use functional programming and avoid class syntax as much as possible
+- Use vertical architecture: features end to end in small complete slices
+- Prefer path aliases for cross-slice imports
+- Prefer relative imports for within-slice imports
+- Never blindly say I'm right, never say I am "absolutely right"
+- Always assume dev server is already running
