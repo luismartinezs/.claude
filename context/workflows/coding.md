@@ -6,7 +6,7 @@ Assumptions:
 - you have a codebase with milestones, each milestone split into features
 - some of the milestones / features are already implemented (start and end steps might different from following)
 
-## workflow
+## coding workflow
 - Select ongoing / next milestone to deliver, e.g. milestone #2
 - From that milestone, select the next feature to implement, e.g. feature "#13 lorem ipsum"
   - feature complexity should be 2-3 in terms of planning poker. If it is > 3, split it down further
@@ -35,6 +35,7 @@ Assumptions:
   - run any other audits, e.g. code complexity, vertical slice, etc (prompts not provided)
   - if a PR-CHECKLIST.md exists, run `go over the checklist in @PR-CHECKLIST.md and complete for current branch. think hard`
     - PR-CHECKLIST.md is a file that you can customize for your repo, see context/templates/PR-CHECKLIST.md
+    - this might be a good place to run /remember command
 - merge to main branch
 
 [1] alternatively after each feature you can run the steps and merge to main, but I think it is a bit overkill. Running the audits after each milestone is probably ok

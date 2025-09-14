@@ -1,8 +1,11 @@
 ---
 description: Evaluate how well a codebase follows vertical slice architecture principles
+argument-hint: Optionally provide claude additional instructions
 ---
 
 Evaluate how well the current codebase follows vertical slice architecture principles. Output a score from 0-100.
+
+$ARGUMENTS
 
 ## Review Criteria (25 points each)
 

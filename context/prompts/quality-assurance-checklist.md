@@ -29,3 +29,5 @@ retrieve the commits within the current checked out branch and make sure the cod
 - Setup and deployment instructions clear
 - Architecture decisions documented
 - Security considerations outlined
+
+Think hardest
