@@ -41,6 +41,8 @@ Follow Vertical Slice Architecture principles:
 4. FRICTION: Identify which ESLint or Dependency-Cruiser rules will prevent this slice from coupling with others.
 5. LOGIC (If Applicable): If the feature involves business logic, describe the Command and how it uses the CommandRunner. If it is purely UI, omit the Command pattern.
 
+Write the plan in a markdown file
+
 Feature Spec:
 [feature spec]
 ```
