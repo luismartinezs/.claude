@@ -1,2 +1,0 @@
-- plan command that does not list functions and tests (for general planning)
-- pm folder or pm agent that takes on the tasks typical of pm
