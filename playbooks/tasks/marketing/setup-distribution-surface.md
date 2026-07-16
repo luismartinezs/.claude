@@ -32,7 +32,12 @@ You **check reality over config**. A CDN, a proxy, or a host can override a `rob
 > 3. Watch for the accidental blocks: a blanket `Disallow: /`, a wildcard `User-agent: *` deny, a "block AI scrapers" setting enabled at the CDN, or a hosting default.
 > 4. If the site is live, verify against the deployed domain, not just the repo file. The
 >    deployed reality is what crawlers see.
-> 5. Report findings before changing anything. A deliberate block is a business decision
+> 5. **If there is no live domain yet** (a pre-launch product, which the pipeline explicitly
+>    supports), you cannot audit deployed reality. Do not fail. Do the repo-level checks now
+>    and **park** every live-domain check: mark each `deferred (no live domain)` in the
+>    report, record "live-domain audit deferred until deploy" in `context/MEMORY.md`, and
+>    treat the task as complete-with-deferrals. Re-run only the live half at deploy.
+> 6. Report findings before changing anything. A deliberate block is a business decision
 >    and it is not yours to reverse. Ask.
 
 ### 2. Emit `llms.txt`
@@ -139,7 +144,8 @@ Update `context/MEMORY.md` with what was wired and any host-level constraint dis
 
 ### Quality Checklist
 - [ ] Crawler access audited before any other work
-- [ ] All five crawlers verified, against the live domain if the site is deployed
+- [ ] All five crawlers verified, against the live domain if the site is deployed; live checks parked as `deferred` (not failed) if there is no live domain yet
+- [ ] If pre-launch: deferrals recorded in `context/MEMORY.md`; task treated as complete-with-deferrals
 - [ ] Host/CDN-level AI blocking checked, not just `robots.txt`
 - [ ] No deliberate block reversed without asking
 - [ ] `llms.txt` emitted and verified to resolve, not 404

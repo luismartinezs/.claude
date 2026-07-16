@@ -4,7 +4,7 @@
 A business or product exists, in any state from "an idea with a spec" to "shipped and selling". It has no content strategy, no knowledge base, and possibly no blog.
 
 ## End State
-The project has a knowledge base, a topic map, a niche GEO strategy, a build-validated blog, and a crawler-reachable distribution surface. Every subsequent article is then produced by the `create-blog-post` workflow, which is a different workflow and runs many times.
+The project has a knowledge base, a topic map, a niche GEO strategy, a build-validated blog, and a distribution surface wired in the repo (crawler-reachable once live; the live-domain audit parks until deploy for a pre-launch product). Every subsequent article is then produced by the `create-blog-post` workflow, which is a different workflow and runs many times.
 
 **Run this once per product.** Do not re-run it per article.
 
@@ -29,6 +29,18 @@ separates framework from project:
 a valid configuration and produces a valid pipeline. Nothing here assumes hub-and-spoke, a
 portfolio, B2C, SaaS, or any go-to-market. If a step's output implies a structure the
 business brief did not state, that step has failed.
+
+## Invariants
+- **The trust chain is interruption-safe by design: unstamped means unchecked.** Step 3 can
+  be killed mid-sweep with zero corrupted state, because a file is trusted only through its
+  `fact_check:` stamp, never through in-progress state. A half-verified file is just an
+  unstamped file, re-checked or triaged later with no forensics. This is a deliberate
+  property, not luck. Preserve it: never add a "verifying" or partial-credit state.
+- **Verification is upstream of strategy, always: 3 → 5, never the reverse.** The authority
+  list in `geo-strategy.md` is harvested from what step 3 verified. Step 3 therefore runs
+  external-only, and must not wait on a strategy that does not exist yet.
+- **A pre-launch product parks step 7 rather than failing it.** "Done" tolerates a deferred
+  live-domain audit. See step 7.
 
 ## Steps
 
@@ -59,6 +71,8 @@ business brief did not state, that step has failed.
      - Task: `playbooks/tasks/marketing/fact-check-content.md`
      - Output: same file, corrected and stamped with `fact_check:` frontmatter
      - Constraint: **verify bottom-up.** A Level 1 file cannot be verified before the Level 0 file it depends on. Verifying out of order silently poisons the trust chain, and the metadata then certifies nothing.
+     - **Tier: `triage`.** These are internal knowledge files verified in bulk. Run `fact-check-content` in its `triage` tier (load-bearing claims verified fully; attributed, hedged claims accepted on the source's authority), recorded in each `fact_check.tier`. Full per-claim external verification here, on top of the research pass, is what blows a token budget twice. A file gets escalated to `full` only when an article is about to quote it.
+     - **This always runs in bootstrap mode.** `fact-check-content` lists `geo-strategy.md` as an input for its authority list, but that file is produced in step 5, after this. So on a bootstrap run there is no authority list yet, and that is correct, not a gap: verification draws on primary sources directly, and step 5 then *harvests the sources you verified here* into the authority list. The dependency runs 3 → 5, never the reverse. Do not let a fact-check STOP for a missing `geo-strategy.md`.
 
    - Note: topics at the same level are independent and can run in any order.
    - Gate: all P1 topics researched and verified before step 4. P2 and P3 may lag.
@@ -75,6 +89,7 @@ business brief did not state, that step has failed.
    - Task: `playbooks/tasks/marketing/generate-geo-strategy.md`
    - Output: `context/marketing/{product}/geo-strategy.md` (authority list, niche E-E-A-T, off-site signals, product mention policy, CTA map, measurement targets)
    - Note: runs after step 4 because it needs the query evidence to judge GEO fit honestly. It states a "weak fit" verdict when the evidence says so.
+   - Note: the **authority list is harvested here from the sources step 3 already verified.** This is why step 3's fact-checks run external-only: the strategy is downstream of verification, not upstream. If you find yourself wanting the authority list during step 3, that is the circular-dependency smell — resolve it by deriving the list here, from what verification actually cited.
    - Note: this file must contain nothing true of an arbitrary other niche. Doctrine leaking in here is this step's characteristic failure.
 
 6. **Set Up the Blog Infrastructure**
@@ -92,6 +107,7 @@ business brief did not state, that step has failed.
    - Output: verified crawler access, `llms.txt`, FAQPage JSON-LD, sitemap `lastmod`, AI referral tracking, and a verification report
    - Note: **crawler access is audited first.** A blocked crawler makes steps 1-6 worthless, and it is the cheapest thing in this whole pipeline to check. Verify against the live domain, not just the repo file.
    - Gate: every item passes with evidence from the built output.
+   - **Pre-launch parked state.** This step audits the *live* domain, which a not-yet-launched product (a configuration the brief explicitly supports) does not have. That is not a failure and does not block "done." Do the repo-level half now (robots.txt, llms.txt, JSON-LD, sitemap in the built output), then **park the live-domain checks**: record in `context/MEMORY.md` as "distribution surface: live-domain audit deferred until deploy," and mark this step `deferred`, not `failed`. The bootstrap is complete with step 7 parked; re-run only its live-verification half at deploy.
 
 ## After Bootstrap
 

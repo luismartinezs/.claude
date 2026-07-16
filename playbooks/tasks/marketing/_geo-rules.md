@@ -69,8 +69,12 @@ Every post follows these eight rules.
 
 ### Rule 1: Answer first, always
 The top GEO mistake is burying the answer. AI engines extract the first comprehensive
-answer they find. An answer in paragraph 4 is a loss. Give the direct answer in the first
-40-60 words, then supporting detail, then extractable bullets.
+answer they find. An answer in paragraph 4 is a loss. A **1-2 sentence hook may precede the
+answer** (a concrete, relatable scenario earns the human read), but the direct answer itself
+must land within roughly the first 90 words, then supporting detail, then extractable
+bullets. Target a 40-60 word answer. If the hook runs long, the TL;DR (Rule 6) is the
+guaranteed extractable block. Hook plus answer both live up top; a hook that pushes the
+answer past ~90 words has become a preamble, which is the mistake this rule names.
 
 ### Rule 2: Question-based headings
 Phrase every H2 and H3 as a question matching how people query assistants.
@@ -134,9 +138,9 @@ Which authorities count, and what "experience" looks like, is per-niche. It belo
 ## 6. Blog Post Template
 
 ```markdown
-[Hook: 2-3 sentences. A concrete scenario the reader has lived. Not a statistic.]
+[Hook: 1-2 sentences. A concrete scenario the reader has lived. Not a statistic.]
 
-[Direct answer: 40-60 words answering the title question immediately.]
+[Direct answer: 40-60 words, landing within the first ~90 words of the post.]
 
 **TL;DR:** [40-60 word summary of key takeaways]
 
@@ -169,7 +173,7 @@ for the real schema. Never guess frontmatter fields.
 
 ### Structure
 - [ ] Title is a question or targets a specific long-tail query
-- [ ] First 40-60 words directly answer the title's question
+- [ ] Direct answer lands within the first ~90 words (a ≤2-sentence hook may precede it)
 - [ ] TL;DR within the first 150 words
 - [ ] All H2/H3 headings are question-based
 - [ ] Sections are 120-180 words (none under 80, none over 200)
@@ -225,7 +229,7 @@ These apply to every word of published copy.
 
 ## 9. Common GEO Mistakes
 
-1. **Burying the answer.** Not in the first 2-3 sentences means skipped.
+1. **Burying the answer.** Not up top (within ~90 words, after at most a short hook) means skipped.
 2. **Anonymous bylines.** "Content Team" or no author is a penalty.
 3. **Missing structured data.** FAQ prose without FAQPage schema is invisible.
 4. **Stale content.** 12+ months without update means 40-60% fewer citations.

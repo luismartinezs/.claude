@@ -46,6 +46,12 @@ You are **query-driven, not topic-driven**. You do not write about subjects. You
 > 4. The audience's own words from the brief. Never the industry's jargon.
 >
 > Record the evidence per query. A query with no evidence is a guess and must be labelled one.
+>
+> **Budget note.** Evidence is a search per query, and 15-25 articles is a lot of searches.
+> Spend the budget where it pays: fully evidence the launch-sequence queries (step 6) and
+> any high-commercial-intent theme first. The long tail may ship as labelled guesses and get
+> evidenced when it is promoted into a launch slot. Evidencing the tail up front, for
+> articles that may never be written, is the waste to avoid.
 
 ### 3. Assess Competition Per Query
 For each candidate query, note quickly:

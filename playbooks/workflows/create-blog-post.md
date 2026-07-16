@@ -11,7 +11,7 @@ A researched, drafted, audited, fact-checked article sits in the content collect
 ## Tools Discovered
 - Doctrine: `~/.claude/playbooks/tasks/marketing/_geo-rules.md`
 - Tasks: `marketing/research-blog-brief`, `marketing/draft-blog-post`, `marketing/audit-blog-geo`, `marketing/fact-check-content`, `marketing/publish-blog-post`
-- Scripts: the project's typecheck and build; the cover image script, if `blog-infra.md` declares one
+- Scripts: the project's typecheck and build; the global cover image generator (`~/.claude/playbooks/scripts/marketing/generate-blog-image.ts`, prompt craft in `marketing/_cover-image-prompts.md`), if `blog-infra.md` declares it. Never hand-build a cover; if the generator is unavailable, publish falls back to the declared placeholder and flags `[NEEDS IMAGE]`.
 - Gaps: none.
 
 ## Prerequisites
@@ -52,6 +52,13 @@ artifacts live in `context/marketing/{product}/blogposts/{slug}/`.
 
    - **Critical Findings are not score deductions.** An unsourced claim or an off-list authority blocks publication at any score. They must reach zero.
    - Escalation: if the score is still under 70 after 2 revisions, stop and report. The brief is probably thin, and more drafting will not fix a research problem.
+
+   3c. **Polish pass** (once, only when the gate is already passed) — if the draft scores >= 70 with zero Critical Findings but the audit still lists Priority Fixes:
+     - Input: the passing draft + `geo-audit-v{N}.md`
+     - Task: `playbooks/tasks/marketing/draft-blog-post.md` (revision mode)
+     - Output: one more `blog-draft-v{N+1}.md`
+     - Apply **only** the audit's listed Priority Fixes, cheapest first. Touch nothing else. **No re-audit, no loop** — this is a single mechanical pass, then proceed to fact-check.
+     - Why this exists: the audit prescribes concrete fixes at every score, but the old gate applied them only below 70, so a 90-scoring draft's cheap fixes (trim a hook, split a long section, soften a claim) were computed and then thrown away. One capped pass captures that value without reopening the loop. Fixes the auditor legitimately defers to fact-check (overstated claims) stay with fact-check; do not double-handle them here.
 
 4. **Fact-Check**
    - Input: the passing `blog-draft-v{N}.md`

@@ -51,8 +51,8 @@ You understand GEO mechanics and write for both humans and AI extraction. **The 
 
 The most important passage for GEO. AI engines evaluate the opening to decide whether to cite the page. Write in this exact order:
 
-1. **Hook** (2-3 sentences): a specific, relatable scenario the reader recognizes. Not a statistic. Not a generic statement about the problem space. A concrete moment they have lived.
-2. **Direct answer** (40-60 words): answer the title's question immediately. This is the passage AI engines extract. It must stand alone as a cited snippet.
+1. **Hook** (1-2 sentences, ~25 words max): a specific, relatable scenario the reader recognizes. Not a statistic. Not a generic statement about the problem space. A concrete moment they have lived. Keep it tight: per GEO Rule 1, the answer must still land within ~90 words, so a 3-sentence hook pushes it too deep.
+2. **Direct answer** (40-60 words): answer the title's question immediately after the hook. This is the passage AI engines extract. It must stand alone as a cited snippet.
 3. **TL;DR** (40-60 words, bolded): the 3-4 key takeaways in a compact block.
 
 ### 4. Write Body Sections
@@ -76,6 +76,11 @@ From the brief's FAQ candidates:
 2. Answer each in 120-180 words. Answer in the first sentence, then support with specifics.
 3. FAQ answers are the most frequently cited content type. Put real substance here, not filler.
 
+> **Write the FAQ as a body `## Frequently Asked Questions` section** with `### Question?`
+> sub-headings. That is what the auditor scores. If the project renders FAQ from a `faq`
+> frontmatter field, `publish-blog-post` moves your section there verbatim at publish time,
+> so write it once, here, in readable prose. Do not hand-author frontmatter.
+
 ### 6. Place Product Mentions
 
 > **PROTOCOL: Product Policy Compliance**
@@ -97,7 +102,7 @@ From the brief's FAQ candidates:
 
 Then run the mechanical verification:
 - Every H2/H3 is a question.
-- First 60 words answer the title's question.
+- The direct answer lands within the first ~90 words (after a ≤2-sentence hook).
 - TL;DR within the first 150 words.
 - Sections 120-180 words (none under 80, none over 200).
 - A sourced statistic every 150-200 words.
@@ -133,9 +138,9 @@ Save to `context/marketing/{product}/blogposts/{slug}/blog-draft-v{N}.md` (v0 fo
 ```markdown
 # {Question-format title targeting the long-tail query}
 
-{Hook: 2-3 sentences, a specific scenario}
+{Hook: 1-2 sentences, a specific scenario}
 
-{Direct answer: 40-60 words answering the title's question}
+{Direct answer: 40-60 words answering the title's question, within the first ~90 words}
 
 **TL;DR:** {40-60 word summary}
 
@@ -161,7 +166,7 @@ Save to `context/marketing/{product}/blogposts/{slug}/blog-draft-v{N}.md` (v0 fo
 - [ ] GEO rules read and its structure rules followed
 - [ ] Existing article voice matched (or precedent-setting noted if none exist)
 - [ ] Title is question-format targeting the brief's long-tail query
-- [ ] First 60 words directly answer the title's question
+- [ ] Direct answer within the first ~90 words (hook ≤2 sentences)
 - [ ] TL;DR within the first 150 words
 - [ ] All H2/H3 headings are questions
 - [ ] Sections 120-180 words (none under 80, none over 200)

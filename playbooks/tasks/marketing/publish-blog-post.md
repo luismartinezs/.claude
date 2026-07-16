@@ -54,15 +54,27 @@ Read the schema and field rules from `blog-infra.md`. Build each field:
 - **summary:** a 1-2 sentence meta description answering the title's query. Pull from the TL;DR or direct answer. Must respect the character limit in `blog-infra.md`. This appears in search results and social previews.
 - **publishedAt:** today, in the format the schema requires.
 - **updatedAt:** only when republishing an existing article.
-- **image:** if `blog-infra.md` names a cover image script, run it with the slug and a prompt. Set the field to the path the script produces. If no script exists or generation is unavailable, output the prompt and flag `[NEEDS IMAGE: {prompt}]`.
+- **image:** if `blog-infra.md` names a cover image script, run it with the slug and a prompt written per `~/.claude/playbooks/tasks/marketing/_cover-image-prompts.md` (subject drawn from the article, craft rules from the guide). Set the field to the path the script produces. If no script exists, generation fails, or its credential (e.g. an API key) is missing: **do not fabricate an image.** Never hand-build an SVG, chart, diagram, or placeholder graphic to fill the field. A hand-drawn chart encodes numbers the fact-checker never saw, on the one surface the pipeline cannot audit. Instead, fall back cleanly, in this order:
+  1. `image` **optional** in the schema → omit the field, note the gap.
+  2. `image` **required** and `blog-infra.md` declares a neutral placeholder → set `image` to the placeholder path and flag `[NEEDS IMAGE: {prompt}]`. The build passes, `draft: true` keeps it off the live site, and the flag tells the user to generate a real cover before going live. This is the normal terminal state when the generator is unavailable, and it is why the placeholder must be neutral (no data, no chart).
+  3. `image` **required** and no placeholder is declared → **STOP** and report `[NEEDS IMAGE: {prompt}]`: "no cover-image generator and no placeholder are available (see `blog-infra.md`). Add a placeholder or wire the generator, then re-run publish."
+
+  A placeholder cover is a clean, publishable terminal state. A fabricated one is a defect that ships.
 - **categories:** map the brief's cluster to a valid slug from `blog-infra.md`'s registry.
 - **author:** a valid ID from the registry.
 - **draft:** `true`. Always.
+- **faq:** if `blog-infra.md` declares a `faq` frontmatter field, **move** the draft's `## Frequently Asked Questions` section into it as structured `question`/`answer` pairs. See step 5 — this is packaging, not prose editing. If `blog-infra.md` renders FAQ from the body instead, leave it in the body.
 - **cta:** only if `blog-infra.md` declares the field AND `geo-strategy.md` defines a CTA map. See step 4.
 
 ### 3. Generate Filename
 
-Convert the title to kebab-case:
+**Prefer the brief's target-query slug.** The filename is the permanent URL, and the query
+you want to own is the brief's primary long-tail query, not the (often long, question-format)
+H1. If `blog-brief.md` names a primary query, kebab-case *that* into the slug. Derive from the
+title only when the brief names no query. A title-derived slug that loses to the query slug
+(too long, stop-word-mangled) is the wrong URL to accumulate authority on.
+
+Otherwise, convert the title to kebab-case:
 - Lowercase
 - Spaces to hyphens
 - Remove punctuation (question marks, colons, quotes, parentheses)
@@ -96,6 +108,16 @@ Combine frontmatter and draft body. Use the exact template from `blog-infra.md`.
 
 **Remove the draft's `# {title}` line.** Per `blog-infra.md`'s body rules, the template renders the H1 from frontmatter. A second H1 in the body is a defect: it breaks the document outline that AI engines parse to understand the page.
 
+> **PACKAGING STEP (not prose editing): relocate the FAQ.** The draft-blog-post task writes
+> the FAQ as a body `## Frequently Asked Questions` section, because that is readable and the
+> auditor scores it there. Many projects, however, render the FAQ from a `faq` frontmatter
+> field so the prose and the FAQPage JSON-LD cannot drift (`blog-infra.md` says which). When
+> `blog-infra.md` declares a `faq` field and forbids body FAQ, move the section into the
+> frontmatter verbatim: each `### Question?` becomes a `question`, its answer becomes the
+> `answer`, word-for-word, then delete the body section. This is a format move, not an edit:
+> the Q&A text is unchanged, so the "no prose editing" rule is not violated. That the two
+> specs disagree on FAQ *location* is deliberate and this step is where it is reconciled.
+
 ### 6. Validate
 
 Against the rules in `blog-infra.md`:
@@ -122,7 +144,8 @@ Run the project's typecheck and build. The content collection schema validates a
 - Reminder: "Set `draft: false` when ready to go live."
 
 ## Constraints (Local Rules)
-- **No prose editing.** Do not change content, headings, or wording. If something reads wrong, report it. Do not fix it.
+- **Never fabricate imagery.** Cover images come from the declared generator or a human, never from the agent's hand. No improvised SVGs, charts, or placeholder graphics to satisfy a required `image` field. Images bypass the fact-check gate, so an invented one is an unverifiable claim shipped to production. A missing cover stops the task cleanly; a fabricated one is the failure.
+- **No prose editing.** Do not change content, headings, or wording. If something reads wrong, report it. Do not fix it. *Relocating* the FAQ from body to the `faq` frontmatter field (step 5) is exempt: it moves text without changing it.
 - **No new categories or authors.** Only registry values. If the article does not fit, flag it. Never modify the registry to accommodate one article: the registry is a deliberate taxonomy, and widening it silently is how a blog's information architecture rots.
 - **`draft: true` always.** Never publish live without explicit user approval. The user flips it.
 - **Summary length is the one editable text.** If the natural summary exceeds the limit, trim it. That is the only prose you may touch, and only for length.
@@ -145,9 +168,11 @@ A single file saved to the article path declared in `blog-infra.md`, named `{keb
 - [ ] Category slugs exist in the registry
 - [ ] Author ID exists in the registry
 - [ ] Summary within the character limit
-- [ ] Filename kebab-case, unique, <= 60 characters
+- [ ] Filename uses the brief's target-query slug (title-derived only if the brief has none); kebab-case, unique, <= 60 characters
+- [ ] FAQ relocated to the `faq` frontmatter field if `blog-infra.md` requires it; text moved verbatim, body section removed
 - [ ] Body does not start with an H1
 - [ ] Internal links use the real URL pattern and resolve
+- [ ] Cover image generated by the declared script, or the declared placeholder used with a `[NEEDS IMAGE]` flag; none hand-fabricated
 - [ ] CTA resolved per the product count; none invented; one per article
 - [ ] `draft: true` set
 - [ ] Typecheck and build pass clean

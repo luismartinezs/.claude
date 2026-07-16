@@ -6,7 +6,7 @@ Verify every factual claim in a content file against authoritative sources, corr
 ## Inputs
 - Primary: Path to the content file to verify (User Input)
 - Plan: `context/marketing/{product}/research-plan.md` (Required if it exists — supplies the dependency order)
-- Strategy: `context/marketing/{product}/geo-strategy.md` (Required — the authority list and honesty rules)
+- Strategy: `context/marketing/{product}/geo-strategy.md` (Required **after bootstrap**; in a bootstrap run it does not exist yet — see Integration Strategy. Do not STOP for its absence during bootstrap.)
 - Knowledge base: `content/knowledge/*.md` (Reference material, **verified files only**)
 - Validator: any project-specific deterministic checker (Discovered, not assumed)
 
@@ -28,8 +28,15 @@ You **correct, you do not edit**. You are not the writer. Style, structure, and 
 > knowledge base while every file looks verified. The chain is what makes the metadata mean
 > something.
 
+> **INVARIANT: Unstamped means unchecked. This is deliberate, and it makes the task safe to
+> interrupt.** A file is trusted only through its `fact_check:` stamp, never through
+> in-progress state. So a run killed mid-verify leaves no corruption: a half-corrected file
+> is simply an unstamped file, indistinguishable from an untouched one, and gets re-checked
+> or triaged later with zero forensics. Never introduce a partial-credit or "verifying"
+> state that would break this. The stamp is the only signal, and its absence is a clean stop.
+
 - Dependency order: `research-plan.md` records which files are Level 0 (foundation, no internal dependencies) and which are derived. **Verify bottom-up.** Never verify a Level N file before its Level N-1 dependencies are verified.
-- Authority list: `geo-strategy.md` names the sources this niche respects. External verification draws from that list first.
+- Authority list: `geo-strategy.md` names the sources this niche respects. External verification draws from that list first. **Bootstrap exception:** on a bootstrap run `geo-strategy.md` does not exist yet — it is generated later (pipeline step 5) *from the very sources you verify here*. That ordering is expected, not a fault. Draw on primary, authoritative sources directly, record each one in the report, and let step 5 harvest your verified sources into the authority list. Do not STOP for a missing strategy during bootstrap.
 - Deterministic validator: check whether the project has one (a schema checker, a lookup-table cross-referencer, a CLI). If it exists, it is free, instant, and catches a whole class of errors before any reasoning happens. If it does not exist, skip that step. Do not build one as part of this task.
 
 ## Workflow Steps
@@ -59,6 +66,27 @@ For each claim, note its location (line number or section heading). Output a num
 2. Select 1-3 **verified** files covering this file's topics.
 3. **If the file being checked is itself a knowledge file, exclude it from its own references.** No self-verification.
 4. If no verified files are available, note "external only" and proceed.
+
+### 4b. Set the Verification Tier
+
+> **PROTOCOL: Triage the verification load.**
+> Full per-claim external verification is right for published copy. Applied at full strength
+> to a bulk sweep of internal knowledge files, twice over (research then verify), it can cost
+> more than the files are worth and blow a token budget. Declare a tier and record it in the
+> metadata, so the stamp says honestly how much scrutiny it represents.
+>
+> - **`full`** — every claim gets its own verdict, with a web search for anything
+>   unsupported. Use for published articles (top of the chain) and any file whose claims are
+>   load-bearing for money, safety, or legal exposure.
+> - **`triage`** — verify load-bearing claims (specific numbers, named facts, anything a
+>   later article will cite as evidence) at full strength; accept attributed, already-hedged
+>   claims ("according to X, roughly Y") on the cited source's authority without a fresh
+>   search. Use for internal knowledge files during a bootstrap sweep.
+>
+> Triage is not a licence to skip: a triaged file still classifies every claim, it only
+> changes how hard you chase the non-load-bearing ones. **Escalate a triaged file to `full`
+> before any of its claims is quoted in published copy.** Default to `full` unless the caller
+> or the workflow declared `triage`.
 
 ### 5. Verify Each Claim
 
@@ -103,10 +131,12 @@ For markdown files, add or update YAML frontmatter:
 fact_check:
   version: 1
   date: YYYY-MM-DD
+  tier: full | triage        # how much scrutiny this stamp represents (see step 4b)
   layers: [deterministic, agent-verify, agent-correct]
   confidence: 0.0-1.0
   findings: { critical: N, warning: N, info: N }
   references: [list of verified files used, or "external-only"]
+  note: "one line: what triage accepted on authority, or anything a re-checker should know"
 ```
 
 For structured data files, follow whatever sidecar convention the project's validator uses.
@@ -135,7 +165,7 @@ Write metadata **even when zero corrections were needed.** The metadata is what 
 ```markdown
 # Fact-Check Report: {file}
 
-**Level:** {N} | **Date:** {YYYY-MM-DD}
+**Level:** {N} | **Date:** {YYYY-MM-DD} | **Tier:** {full / triage}
 **References used:** {verified files, or "external-only (bootstrap)"}
 **Deterministic layer:** {run / none exists}
 
@@ -163,8 +193,10 @@ Write metadata **even when zero corrections were needed.** The metadata is what 
 ```
 
 ### Quality Checklist
+- [ ] Verification tier set (`full` / `triage`) and recorded in metadata + report
+- [ ] Triaged files: load-bearing claims still verified at full strength; escalation-before-quote noted
 - [ ] Dependency order established; task stopped if a dependency was unverified
-- [ ] Bootstrap noted explicitly if no verified references exist
+- [ ] Bootstrap noted explicitly if no verified references exist; task did NOT stop for a missing `geo-strategy.md` during bootstrap
 - [ ] Deterministic validator run if the project has one
 - [ ] Every factual claim identified with its location
 - [ ] Reference files confirmed verified before use

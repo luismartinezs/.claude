@@ -45,6 +45,7 @@ Required at minimum:
 
 Optional:
 - `updatedAt` — drives `dateModified` and sitemap `lastmod`. Freshness is a top-three ranking signal, so this field is load-bearing.
+- `metaTitle` — a shorter (<60 char) `<title>`/OpenGraph title when the H1 is a long question. GEO wants question-format H1s (Rule 2), which routinely exceed 60 chars; without this field the same string is forced to be both a good H1 and a good meta title, and it cannot always be both. Recommended when your topic titles run long. If you skip it, the `title` doubles as the meta title and the audit treats its length as advisory, not a deduction.
 - `image` + `imageAlt`
 - `faq` — structured question/answer pairs, if the project prefers generating FAQPage JSON-LD from data rather than parsing prose. Recommended: parsing headings for schema is brittle.
 - `cta` — only if `geo-strategy.md` defines a multi-product CTA map. Omit entirely otherwise.
@@ -56,9 +57,21 @@ Implement, following the project's existing conventions:
 2. **Category and author registries** as typed constants, referenced by the schema.
 3. **Index page** listing published (non-draft) posts.
 4. **Article page** rendering a post, with the title as the page's single `h1`.
+4a. **A neutral placeholder cover** in the public images dir (a plain branded card, no data, no chart), declared in the surface below. `publish-blog-post` uses it as the honest fallback when the cover generator is unavailable, so an article can still ship as a draft without anyone hand-drawing an image.
 5. **JSON-LD**: BlogPosting on every article; FAQPage where FAQ data exists. Per GEO rules section 5, FAQ prose without FAQPage markup is invisible to AI retrieval, so this is not optional.
 6. **Metadata**: OpenGraph article tags, `datePublished`, `dateModified`, canonical URL, breadcrumbs.
 7. **Draft filtering**: drafts excluded from the index, the sitemap, and the build output.
+
+> **Cover images: wire the global generator, do not build one.** Image generation is a
+> shared capability, not per-project code. The script lives at
+> `~/.claude/playbooks/scripts/marketing/generate-blog-image.ts` (see `_cover-image-prompts.md`).
+> Do NOT write a project-local image script, and never let the pipeline hand-draw one.
+> In the surface declaration below, set the "Cover image script" cell based on readiness:
+> - `OPENROUTER_API_KEY` present in the project's `.env` and `cwebp` installed →
+>   `bun ~/.claude/playbooks/scripts/marketing/generate-blog-image.ts <slug> "<prompt>" {real images dir}`
+> - either missing → `none (global generator available; set OPENROUTER_API_KEY in .env and install cwebp to enable)`
+>
+> Report which case applies. Do not silently write "none" when the only gap is a credential.
 
 ### 4. Verify the Build Catches Errors
 
@@ -117,7 +130,8 @@ this file instead of hardcoding paths. If you move a folder, update this file in
 | Author registry | `{real path}` |
 | Article page template | `{real path}` |
 | Public images | `{real path}` |
-| Cover image script | `{real path, or "none"}` |
+| Cover image script | `{global generator invocation with real images dir, or "none (...)" per the cover-images note}` |
+| Placeholder image | `{real path to a neutral placeholder cover, e.g. `/images/blog/placeholder-cover.svg`}` |
 
 ## Frontmatter Schema
 | Field | Type | Required | Constraint |
@@ -129,6 +143,7 @@ this file instead of hardcoding paths. If you move a folder, update this file in
 | categories | array | yes | see registry |
 | draft | boolean | yes | defaults true |
 | updatedAt | date | no | drives dateModified + sitemap lastmod |
+| metaTitle | string | no | short (<60) title for `<title>`/OG when the H1 is a long question |
 | image | string | no | |
 | imageAlt | string | no | |
 

@@ -38,7 +38,7 @@ Measure each criterion. Be precise: count words, headings, stats.
 
 | Criterion | Rule | Points | How to Measure |
 |---|---|---|---|
-| Answer-first | Title question answered in first 60 words | 5 | Count words before the answer. 0 if buried past 100. |
+| Answer-first | Direct answer within the first ~90 words; a ≤2-sentence hook may precede it | 5 | Count words to the answer's first sentence. Full if ≤90, 3 if 91-120, 0 if past 120. The TL;DR counts as the answer if it lands within 150 words. A short hook before the answer is allowed by GEO Rule 1 and is not a deduction. |
 | TL;DR | Within first 150 words, 40-60 words, bolded | 3 | Presence, position, length. |
 | Question headings | All H2/H3 are questions | 5 | Deduct 1 per non-question heading, min 0. |
 | Section length | 120-180 words between headings | 5 | Deduct 1 per section outside 80-200, min 0. |
@@ -63,8 +63,8 @@ Measure each criterion. Be precise: count words, headings, stats.
 | Self-contained sections | Each section answers its heading independently | 8 | Deduct 2 per section requiring context from elsewhere. |
 | Direct answers | Each section leads with the answer | 7 | Check first sentence of each section. |
 | Heading hierarchy | Clean H1 → H2 → H3, no skipped levels | 3 | Check structure. |
-| Internal links | Links to related articles on the same site | 3 | 0 if none, 3 if 2+. |
-| Meta-ready | Title < 60 chars, summary < 160 chars, answers the query | 4 | Measure both. |
+| Internal links | Links to related articles on the same site | 3 | 0 if none, 3 if 2+. **N/A — award full 3 — when fewer than 3 articles are published:** the first articles in a blog have no siblings to link, which is not a defect. Note it rather than deducting. |
+| Meta-ready | summary < 160 chars and answers the query; a meta title < 60 chars is available | 4 | Summary is load-bearing — measure it. For the title: full credit if a `metaTitle` field (or a `title` already < 60) supplies a short meta title. If the H1 is a long question-format headline (GEO Rule 2) and the schema has no `metaTitle` field, treat length as **advisory** — note it, recommend adding `metaTitle`, do not deduct. Penalizing a good question-H1 for length fights Rule 2. |
 
 **Voice & Authenticity (10 points):**
 
