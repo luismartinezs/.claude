@@ -11,4 +11,6 @@
 !commands/**
 !context/
 !context/**
+!playbooks/
+!playbooks/**
 !CLAUDE.md
