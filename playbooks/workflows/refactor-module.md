@@ -7,7 +7,7 @@ A module or area of the codebase has accumulated complexity, duplication, or str
 Code is restructured with identical external behavior, reviewed, and lessons captured.
 
 ## Tools Discovered
-- Tasks: `engineering/refactor`, `engineering/review-code`, `meta/update-memory`
+- Tasks: `engineering/refactor-code`, `engineering/review-code`, `meta/update-memory`
 - Scripts: `bun run typecheck` (type verification)
 - Gaps: None. All steps covered.
 
@@ -15,7 +15,7 @@ Code is restructured with identical external behavior, reviewed, and lessons cap
 
 1. **Refactor**
    - Input: Target module/files and the specific improvement goal
-   - Task: `playbooks/tasks/engineering/refactor.md`
+   - Task: `playbooks/tasks/engineering/refactor-code.md`
    - Output: Restructured code with atomic commits, validated incrementally, no behavior changes
    - Constraint: Pareto-scoped. Only the critical 20%. Existing patterns followed.
 

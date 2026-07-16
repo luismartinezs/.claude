@@ -7,7 +7,7 @@ A codebase with features deployed or about to deploy, where security posture has
 Full adversarial security review completed, critical vulnerabilities fixed, remaining issues tracked, and security-relevant architectural decisions captured in memory.
 
 ## Tools Discovered
-- Tasks: `engineering/security-audit`, `engineering/review-code`, `meta/update-memory`
+- Tasks: `engineering/audit-security`, `engineering/review-code`, `meta/update-memory`
 - Scripts: `bun run typecheck` (validation after fixes)
 - Gaps: None. All steps covered.
 
@@ -15,7 +15,7 @@ Full adversarial security review completed, critical vulnerabilities fixed, rema
 
 1. **Audit**
    - Input: Target scope (usually full repo for first audit, specific app/feature for follow-ups)
-   - Task: `playbooks/tasks/engineering/security-audit.md`
+   - Task: `playbooks/tasks/engineering/audit-security.md`
    - Output: Scored security report with findings by severity, attack paths, and concrete fixes
    - Gate: User reviews findings. Agrees on which Critical and Warning findings to fix now vs. track for later.
 

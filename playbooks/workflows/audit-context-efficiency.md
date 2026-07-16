@@ -7,7 +7,7 @@ A codebase that may have drifted from AI-optimal conventions over time (growing 
 Codebase is assessed against AI navigability criteria, hotspots are identified, and the most impactful fixes are applied and verified.
 
 ## Tools Discovered
-- Tasks: `engineering/audit-ai-navigability`, `engineering/refactor`, `engineering/audit-file-structure`, `meta/update-memory`
+- Tasks: `engineering/audit-ai-navigability`, `engineering/refactor-code`, `engineering/audit-file-structure`, `meta/update-memory`
 - Scripts: `bun run typecheck` (validation)
 - Gaps: None. All steps covered.
 
@@ -22,11 +22,11 @@ Codebase is assessed against AI navigability criteria, hotspots are identified, 
 2. **Fix Hotspots**
    - Input: Approved hotspots from Step 1
    - Task: Depends on the hotspot type:
-     - Pattern collisions or slice boundary issues → `playbooks/tasks/engineering/audit-file-structure.md` (then `engineering/refactor` to execute any split it plans)
-     - Type erosion (`any` usage, missing return types) → `playbooks/tasks/engineering/refactor.md` with goal "add explicit types"
-     - Schema scatter → `playbooks/tasks/engineering/refactor.md` with goal "centralize schema"
-     - Shared package bypass → `playbooks/tasks/engineering/refactor.md` with goal "route types through @repo/* packages"
-     - Grepability issues → `playbooks/tasks/engineering/refactor.md` with goal "rename anonymous exports, eliminate magic strings"
+     - Pattern collisions or slice boundary issues → `playbooks/tasks/engineering/audit-file-structure.md` (then `engineering/refactor-code` to execute any split it plans)
+     - Type erosion (`any` usage, missing return types) → `playbooks/tasks/engineering/refactor-code.md` with goal "add explicit types"
+     - Schema scatter → `playbooks/tasks/engineering/refactor-code.md` with goal "centralize schema"
+     - Shared package bypass → `playbooks/tasks/engineering/refactor-code.md` with goal "route types through @repo/* packages"
+     - Grepability issues → `playbooks/tasks/engineering/refactor-code.md` with goal "rename anonymous exports, eliminate magic strings"
    - Output: Targeted fixes, validated via typecheck
    - Constraint: Fix one hotspot at a time. Validate before moving to the next.
 

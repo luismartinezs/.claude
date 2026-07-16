@@ -82,7 +82,7 @@ Audit across 6 dimensions, scoring each 1-5:
 > **PROTOCOL: Structured Communication**
 > 1. Lead with the overall score and verdict.
 > 2. Separate "fix now" (score 1-2) from "improve later" (score 3).
-> 3. For each fix, name the specific task to run (`engineering/refactor`, `engineering/audit-file-structure`, etc.).
+> 3. For each fix, name the specific task to run (`engineering/refactor-code`, `engineering/audit-file-structure`, etc.).
 
 ## Constraints (Local Rules)
 - **No code changes in this task**: This is an audit. It produces a report, not fixes.

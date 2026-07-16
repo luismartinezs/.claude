@@ -1,24 +1,31 @@
 # Spec for agentic tasks
 
-It places the `tasks` folder inside `context/`, uses pure Markdown (no XML), and explicitly integrates with your `CLAUDE.md`, `.claude/skills`, and `MEMORY.md`.
+Tasks are pure Markdown (no XML) and integrate with your `CLAUDE.md` and `context/MEMORY.md`.
 
 ### 1. The Architecture
 
-Your codebase structure for Agentic Workflows:
+The library is global. Projects inherit it by reference and carry no copy.
 
 ```text
-.
-├── CLAUDE.md             # GLOBAL LAWS (Style guide, prohibited patterns)
-├── .claude/
-│   ├── skills/           # ATOMIC CAPABILITIES (e.g., create-component.md)
-│   └── config.json       # MCP TOOLS (e.g., filesystem, postgres)
-├── context/
-│   ├── MEMORY.md         # PROJECT STATE (Decisions log, roadmap status)
-├── playbook/
-│   └── tasks/            # ORCHESTRATORS ("The Legos")
-│       └── _template.md  # The standard definition (Copy this)
+~/.claude/
+├── CLAUDE.md                 # GLOBAL LAWS (style, prohibited patterns, resolution order)
+└── playbooks/
+    ├── tasks/
+    │   ├── _template.md      # The standard definition (copy this)
+    │   ├── _strategies.md    # Cognitive patterns to embed
+    │   └── {domain}/         # ORCHESTRATORS ("The Legos"), {verb}-{noun}.md
+    └── workflows/            # Chained tasks, {verb}-{noun}.md
 
+<project>/
+├── CLAUDE.md                 # PROJECT LAWS (stack, conventions)
+├── context/
+│   └── MEMORY.md             # PROJECT STATE (decisions log, roadmap status)
+└── playbooks/                # OPTIONAL. Only for project-only overrides.
+                              # A file here wins over the global one of the same name.
 ```
+
+Resolution is local first, then global. See `tasks.README.md` for naming rules and the
+execution protocol.
 
 ---
 
@@ -35,12 +42,12 @@ Save this file as `playbooks/tasks/_template.md`. It is the master pattern.
 ## Inputs
 - Primary: [e.g., Feature Draft text]
 - Context: `context/MEMORY.md` (Required)
-- Rules: `context/CLAUDE.md` (Required)
+- Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona
 You are a [Role, e.g., Principal Architect].
 You prioritize [Core Value, e.g., maintainability over speed].
-You strictly adhere to the patterns defined in `context/CLAUDE.md`.
+You strictly adhere to the patterns defined in `CLAUDE.md`.
 
 ## Integration Strategy
 - Memory: Read `context/MEMORY.md` for project state and recent decisions.
@@ -79,7 +86,7 @@ USER INPUT:
 
 ---
 
-### 3. Concrete Example: `playbooks/tasks/plan-feature.md`
+### 3. Concrete Example: `playbooks/tasks/engineering/plan-feature.md`
 
 Here is how a real "Lego" looks using this spec.
 
@@ -91,7 +98,7 @@ Create a comprehensive, step-by-step implementation plan for a new feature, ensu
 
 ## Inputs
 - Primary: Feature Request (User Input)
-- Context: `context/MEMORY.md`, `context/ARCHITECTURE.md`
+- Context: `context/MEMORY.md`
 
 ## Role & Persona
 You are a Senior Technical Lead. You assume the user's draft is incomplete and requires you to fill in edge cases and error handling. You value Atomic Commits and Type Safety.
@@ -146,7 +153,7 @@ USER INPUT:
 
 ### 4. How to Run It
 
-1.  Reference the task file (e.g., `@playbooks/tasks/plan-feature.md`) in your AI coding agent.
+1.  Reference the task file (e.g., `@playbooks/tasks/engineering/plan-feature.md`) in your AI coding agent.
 2.  Provide your input after the task prompt.
 
 The agent will now autonomously:

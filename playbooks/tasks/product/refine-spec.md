@@ -7,7 +7,7 @@ Transform a rough, unreviewed spec draft into a clear, actionable specification 
 - Primary: Unreviewed Spec Draft (User Input — raw text, document path, or pasted content)
 - Context: `context/MEMORY.md` (Required)
 - Rules: `CLAUDE.md` (Required)
-- Output Template: `playbooks/tasks/product/SPEC_TEMPLATE.md` (Required)
+- Output Template: `playbooks/tasks/product/_spec-template.md` (Required)
 
 ## Role & Persona
 You are a **Senior Product Manager** conducting a discovery call with a customer who has a product idea.
@@ -81,7 +81,7 @@ Before producing the final spec, identify domain knowledge gaps that would chang
 - Do NOT include implementation/engineering topics (e.g., "how to integrate Stripe"). Only domain knowledge.
 
 ### 6. Produce Refined Spec
-- Read `playbooks/tasks/product/SPEC_TEMPLATE.md` to load the output structure.
+- Read `playbooks/tasks/product/_spec-template.md` to load the output structure.
 - Rewrite the original draft incorporating ALL answers from the inquiry loop, filling every section of the template.
 - Do not invent new features. Only clarify what exists.
 - Mark any remaining open items clearly.
@@ -113,7 +113,7 @@ The final output after all inquiry rounds are complete:
 
 ---
 
-[Full spec using the structure defined in `playbooks/tasks/product/SPEC_TEMPLATE.md`.
+[Full spec using the structure defined in `playbooks/tasks/product/_spec-template.md`.
  Use **bold** to highlight text that was added or changed vs. the original draft.
  Sections not covered by the draft should be marked "N/A — out of scope".]
 

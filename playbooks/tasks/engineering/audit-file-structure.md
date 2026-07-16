@@ -94,7 +94,7 @@ For each split candidate:
 ## Constraints (Local Rules)
 - **No line-count splits**: Raw file size is not a split trigger. Only pattern collisions (Signal 1) or edit-coupling independence (Signal 2) justify one. A 3,000-line slice with unique patterns and a single owner stays.
 - **Boilerplate tax**: Every split costs ~15-20 lines of imports + re-exports per new file. If the total boilerplate cost of a proposed split exceeds the benefit, leave the file alone.
-- **No refactoring in this task**: This task produces a PLAN, not code changes. Use `engineering/refactor` to execute.
+- **No refactoring in this task**: This task produces a PLAN, not code changes. Use `engineering/refactor-code` to execute.
 - **Measure, don't guess**: Every recommendation must cite a specific signal score.
 - **Respect co-location intent**: Co-locating a whole slice in one file is deliberate — it is the point of the architecture. The question is whether a file has outgrown it mechanically (collisions, coupling), not whether it "feels big."
 
