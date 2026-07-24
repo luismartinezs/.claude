@@ -169,13 +169,29 @@ Assemble all tokens into a single CSS file with this structure:
 
 ### 6. Verify Contrast
 
-After generating, manually check these pairings meet WCAG AA:
-- `--color-text` on `--color-bg` (must be >= 4.5:1)
-- `--color-text-secondary` on `--color-bg` (must be >= 4.5:1)
-- White text on `--color-primary` (must be >= 4.5:1; if it fails, darken primary or use dark text)
-- `--color-text` on `--color-surface` (must be >= 4.5:1)
+Compute every ratio. Do not eyeball them, and do not reason about them from the OKLCH lightness value: `oklch()` L is perceptual lightness, which is *not* the WCAG relative luminance the ratio is defined on, so two tokens 20 L apart can land anywhere.
 
-If any fail, adjust the lightness value and note the adjustment.
+Every combination the UI will actually use, at **AAA (7:1)** for text unless the project states otherwise. At minimum:
+
+| Foreground | Background | Bar |
+|---|---|---|
+| `--color-text` | `--color-bg` | 7:1 |
+| `--color-text` | `--color-surface` | 7:1 |
+| `--color-text-secondary` | `--color-bg` and `--color-surface` | 7:1 |
+| `--color-muted` (tertiary) | `--color-bg` and `--color-surface` | 7:1 |
+| `--color-primary` | `--color-bg` and `--color-surface` | 7:1 |
+| each semantic colour (success/warn/danger) | `--color-bg` and `--color-surface` | 7:1 |
+| button text | its own filled background | 7:1 |
+| `--color-primary` (as a focus ring) | `--color-bg` and `--color-surface` | 3:1 |
+| `--color-border` on controls | its adjacent surface | 3:1 |
+
+Repeat the whole table **per theme**. A dark-mode palette derived by flipping lightness does not inherit the light theme's ratios.
+
+**Tertiary/muted is the token that fails**, because it is the one every hierarchy pass pushes lighter. Generate it against the bar rather than picking a lightness and hoping.
+
+If any fail, adjust lightness and note the before/after.
+
+**This is a token check, and tokens are only the inputs.** The moment components start tinting surfaces (`color-mix`, `rgba`, `opacity`), the rendered page contains pairings this table cannot see, and they are always worse than the tokens suggest. Say so in the output, and point at `playbooks/tasks/engineering/audit-contrast.md` for the rendered check.
 
 ## Constraints (Local Rules)
 - **No dependencies**: Pure CSS custom properties. No Sass, no PostCSS, no JavaScript color libraries.
@@ -198,13 +214,19 @@ If any fail, adjust the lightness value and note the adjustment.
 ### Generated File
 {path to CSS file}
 
-### Contrast Verification
-| Pairing                        | Ratio | Pass/Fail |
-|-------------------------------|-------|-----------|
-| text on bg                    | X:1   | ...       |
-| text-secondary on bg          | X:1   | ...       |
-| white on primary              | X:1   | ...       |
-| text on surface               | X:1   | ...       |
+### Contrast Verification (tokens only, per theme)
+| Pairing | Light | Dark | Bar | Pass/Fail |
+|---|---|---|---|---|
+| text on bg | X:1 | X:1 | 7:1 | ... |
+| text-secondary on bg | X:1 | X:1 | 7:1 | ... |
+| muted on surface | X:1 | X:1 | 7:1 | ... |
+| primary on surface | X:1 | X:1 | 7:1 | ... |
+| focus ring on bg | X:1 | X:1 | 3:1 | ... |
+
+Lowest passing ratio: {ratio} - {pairing}. This is what breaks first when the palette moves.
+
+Not covered here: any surface a component tints at runtime. Run
+`playbooks/tasks/engineering/audit-contrast.md` once components exist.
 
 ### Adjustments
 - {any values adjusted for contrast, with before/after}
@@ -215,7 +237,9 @@ If any fail, adjust the lightness value and note the adjustment.
 - [ ] Type scale follows a consistent modular ratio
 - [ ] Spacing scale uses a consistent base unit
 - [ ] Dark mode variant included
-- [ ] All critical contrast pairings pass WCAG AA
+- [ ] Every pairing in the Step 6 table computed (not estimated) and passing, in every theme
+- [ ] Tertiary/muted verified against the bar, not assumed
+- [ ] Output states that tinted surfaces remain unverified
 - [ ] Single CSS file, no dependencies
 - [ ] Comment header includes seed values for reproducibility
 

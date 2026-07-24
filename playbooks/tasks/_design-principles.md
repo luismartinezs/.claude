@@ -20,6 +20,15 @@
 >
 > Stay away from font weights under 400 for UI. They work for large headings but are unreadable at smaller sizes.
 
+> **RULE: The Tertiary Floor**
+> "Light grey" is a rank, not a lightness. All three levels are **body text**, and all three must clear the project's contrast bar (AAA 7:1 unless stated otherwise). Tertiary is the level that fails, because it is the one this system keeps pushing lighter.
+>
+> The three levers are size, weight, and colour. Only colour has an accessibility floor. So when the hierarchy is not reading clearly, **spend size and weight before you spend lightness** — they are unbounded and lightness is not.
+>
+> If tertiary is at the floor and still competes with secondary, the palette has run out of room between them. Widen the gap by darkening *primary*, or separate the two with size and weight instead. Do not lighten past the floor. Three ranks that are all legible beats four ranks where the last one is grey mush.
+>
+> Verify, do not estimate. `#999` on white is 2.85:1 and looks perfectly reasonable in an editor.
+
 ---
 
 ## 2. Emphasize by De-emphasizing
@@ -40,6 +49,10 @@
 > - **Tertiary**: Styled as text links. Discoverable but unobtrusive.
 >
 > Destructive actions are NOT automatically primary. If "Delete" isn't the main action, give it secondary/tertiary treatment. Use the bold red style only in the confirmation dialog where it IS the primary action.
+>
+> **Subtraction is not the same as fading.** De-emphasize by removing devices — drop a background, drop a border, drop a shadow, reduce size, reduce weight, add surrounding space. Reach for lighter text last, and never below the contrast floor.
+>
+> This rule is applied iteratively, and that is exactly what makes it dangerous: each pass says "soften the competition," so contrast erodes a little every time the hierarchy improves. The loop only runs one way. After any subtraction pass, re-measure the elements you softened.
 
 ---
 
