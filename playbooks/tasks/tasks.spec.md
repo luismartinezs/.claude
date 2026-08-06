@@ -1,8 +1,15 @@
 # Spec for agentic tasks
 
-Tasks are pure Markdown (no XML) and integrate with your `CLAUDE.md` and `context/MEMORY.md`.
+Tasks are pure Markdown (no XML). A **task** is one job with a fixed schema. A
+**workflow** chains tasks, each step emitting a file that feeds the next.
 
-### 1. The Architecture
+This file is the doctrine. It deliberately **does not copy** `_template.md` or any
+example task, because the previous version did and both copies drifted out of
+date. Read the real files instead; the paths are below.
+
+---
+
+## 1. Architecture
 
 The library is global. Projects inherit it by reference and carry no copy.
 
@@ -11,9 +18,9 @@ The library is global. Projects inherit it by reference and carry no copy.
 ├── CLAUDE.md                 # GLOBAL LAWS (style, prohibited patterns, resolution order)
 └── playbooks/
     ├── tasks/
-    │   ├── _template.md      # The standard definition (copy this)
-    │   ├── _strategies.md    # Cognitive patterns to embed
-    │   └── {domain}/         # ORCHESTRATORS ("The Legos"), {verb}-{noun}.md
+    │   ├── _template.md      # The schema. Copy this to start a task.
+    │   ├── _strategies.md    # Blocks that command an observable action
+    │   └── {domain}/         # Tasks, {verb}-{noun}.md
     └── workflows/            # Chained tasks, {verb}-{noun}.md
 
 <project>/
@@ -24,142 +31,101 @@ The library is global. Projects inherit it by reference and carry no copy.
                               # A file here wins over the global one of the same name.
 ```
 
-Resolution is local first, then global. See `tasks.README.md` for naming rules and the
-execution protocol.
+Resolution is local first, then global. See `tasks.README.md` for naming rules
+and the execution protocol.
 
 ---
 
-### 2. The Spec: `_template.md`
+## 2. What earns a place in a task
 
-Save this file as `playbooks/tasks/_template.md`. It is the master pattern.
+This is the load-bearing section, and it was written from measurement rather than
+taste. In 8 A/B runs across 3 task types (2026-08-06), playbook sections that
+**described how to think** produced exactly the same findings as a plain request
+while costing 61% to 153% more. Sections that **commanded an action** changed the
+output every time.
 
-```markdown
-# TASK: [Task Name]
+So a task is worth writing only if it carries at least one of two things.
 
-## Objective
-[1-sentence description of the output, e.g., "Convert a feature draft into a production-ready technical spec."]
+1. **Knowledge the model cannot infer** from the code in front of it. A
+   distinction that decides the task, a classification scheme, a named failure
+   mode, the reason behind a non-obvious rule. This goes in `## Core Model`.
+2. **An action the model would not take by default.** Run a check that fails on
+   the broken version. Apply the fix and prove it. Stop and ask rather than
+   assume. Delete the scratch file. This goes in Workflow Steps and in the gate
+   under Definition of Done.
 
-## Inputs
-- Primary: [e.g., Feature Draft text]
-- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
-- Rules: `CLAUDE.md` (Required)
+If a draft task has neither, **do not create it.** `meta/create-task.md` is
+required to check this and is explicitly allowed to recommend against building
+the task. A task that only restates general competence is measurably worse than
+typing the request directly.
 
-## Role & Persona
-You are a [Role, e.g., Principal Architect].
-You prioritize [Core Value, e.g., maintainability over speed].
-You strictly adhere to the patterns defined in `CLAUDE.md`.
-
-## Integration Strategy
-- Memory: Read `context/MEMORY.md` for project state and recent decisions.
-- Codebase: Read relevant files to verify current state before making changes. Do not guess.
-- Relevant Paths:
-    - `apps/backend/src/modules/`: Backend feature slices
-    - `apps/frontend/src/modules/`: Frontend feature slices
-    - `apps/mobile/modules/`: Mobile feature slices
-    - `packages/api-types/src/`: Shared types and Zod schemas
-
-## Workflow Steps
-- Ingest: Read the User Input and `context/MEMORY.md`.
-- Map: Identify relevant files in the codebase using `ls` or `grep`.
-- [Step Name]: [Specific instruction, e.g., "Draft the interface definitions"]
-- [Step Name]: [Specific instruction]
-- Verify: Check your output against the Constraints below.
-- Definition of Done: Ensure the output meets the specific criteria (e.g., "Must compile", "Must have tests").
-
-## Constraints (Local Rules)
-- [Rule 1, e.g., "Do not remove existing comments."]
-- [Rule 2, e.g., "Output must be a single Markdown block."]
-
-## Definition of Done
-
-### Output Structure
-[Insert the exact format you want the agent to produce here]
-
-### Quality Checklist
-- [ ] [Criterion 1]
-- [ ] [Criterion 2]
-
----
-USER INPUT:
-
-```
+**What does not earn a place:** personas beyond two or three lines, instructions
+to be adversarial or thorough or careful, "read the surrounding code first",
+mental simulation, and confidence scores. The first five are things a capable
+model already does. The last is a presentation choice, kept in `_strategies.md`
+under output-format blocks and labelled as such.
 
 ---
 
-### 3. Concrete Example: `playbooks/tasks/engineering/plan-feature.md`
+## 3. The schema
 
-Here is how a real "Lego" looks using this spec.
+Defined by `_template.md`, which is the single source of truth. Sections, in
+order:
 
-```markdown
-# TASK: Plan Feature Implementation
+1. `## Objective` (one sentence, names the output)
+2. `## Inputs` (primary, plus context files and whether each is optional)
+3. `## Role & Persona` (two or three lines, sets tone only)
+4. `## Core Model` (the knowledge; write this first, or reconsider the task)
+5. `## Workflow Steps` (commanded actions, in order)
+6. `## Constraints (Local Rules)` (what is forbidden)
+7. `## Definition of Done` (the gate, the output structure, the quality checklist)
 
-## Objective
-Create a comprehensive, step-by-step implementation plan for a new feature, ensuring no architectural conflicts.
+Rules that hold across every task:
 
-## Inputs
-- Primary: Feature Request (User Input)
-- Context: `context/MEMORY.md`
-
-## Role & Persona
-You are a Senior Technical Lead. You assume the user's draft is incomplete and requires you to fill in edge cases and error handling. You value Atomic Commits and Type Safety.
-
-## Integration Strategy
-- Memory: Check `context/MEMORY.md` for recent library changes.
-- Codebase: Read `package.json` and relevant files to verify installed versions before planning. Do not guess.
-
-## Workflow Steps
-- Analyze: Identify the core value and data mutations required.
-- Gap Analysis: Read existing related files. Identify what is missing.
-- Draft Plan: Create the plan using the Output Template.
-- Review: Verify the plan handles "Sad Paths" (network errors, validation failures).
-- Definition of Done: Ensure the plan includes Zod schemas, component hierarchy, and a testing strategy.
-
-## Constraints
-- No Mocking: Plan for real API integration from step 1.
-- Database: Schema changes must be defined in Zod first.
-- Testing: Every logical step must have a corresponding test strategy.
-
-## Definition of Done
-
-### Output Structure
-# Implementation Plan: {Feature Name}
-
-### 1. Data Modeling
-```typescript
-// Zod Schemas
-
-```
-
-### 2. Component Hierarchy
-- `Parent`
-- `Child`
-
-### 3. Execution Checklist
-- [ ] Step 1: Create types
-- [ ] Step 2: Setup API Mock (if needed)
-- [ ] Step 3: Implement UI
-
-### Quality Checklist
-- [ ] Zod schemas defined for all data models
-- [ ] Component hierarchy diagram/list provided
-- [ ] Execution checklist created with "sad path" coverage
-- [ ] No "shared" folder imports unless absolutely necessary
+- **Self-contained.** A task must be usable by referencing only that file plus
+  `CLAUDE.md`. Strategy blocks are inlined, not linked. The consequence is that
+  retiring a block from `_strategies.md` does not edit tasks that already copied
+  it, so `_strategies.md` carries a migration note listing what is stale.
+- **Tool-agnostic.** "Run the target's typecheck command", never a command copied
+  from one repo.
+- **Every branch point ships a decision rule**: the classes, the action per class,
+  and the null class stated explicitly.
+- **Optional context degrades quietly.** If `context/MEMORY.md` is absent, skip
+  the steps that need it and say nothing about it.
+- **Quality checklist items must be answerable yes or no from the output alone.**
 
 ---
 
-USER INPUT:
+## 4. Worked examples, by what they demonstrate
 
-```
+Read the file, do not trust a summary of it.
 
-### 4. How to Run It
+| Read this | For |
+|---|---|
+| `meta/create-port-skill.md` | The best `## Core Model` in the library: the invariant / adaptation point / instantiation classification, and the failure mode of confusing the third for the first. |
+| `engineering/diagnose-bug.md` | A Core Model that changes the analysis (discriminating vs confirming symptoms) plus a differential-check gate. Measured as an improvement at equal cost. |
+| `engineering/write-tests.md` | A gate that costs real money and buys real assurance: the mutation check, and the rule against pinning a defect as the spec. |
+| `engineering/review-code.md` | A gate with a known sharp edge: requiring a trigger raises evidence quality but can demote a true Critical, so it carries a named-class exception. |
 
-1.  Reference the task file (e.g., `@playbooks/tasks/engineering/plan-feature.md`) in your AI coding agent.
-2.  Provide your input after the task prompt.
+---
 
-The agent will now autonomously:
-1.  Adopt the **Role**.
-2.  Read your **Memory** and **Global Rules**.
-3.  Execute the **Workflow**.
-4.  Produce the **Output** in the correct format.
+## 5. How to run one
 
-```
+Three doors, all equivalent: `/task <name>`, `/wf <name>`, or naming it in prose
+("run compose-workflow"). A local playbook can also be referenced by path with
+`@`. Resolution is local first, then global; if a name does not resolve, the
+command says so and lists near matches rather than improvising.
+
+---
+
+## 6. How the library changes
+
+- **Adding a task**: `meta/create-task.md`, which must first justify the task
+  against section 2 and register it in the global index in `~/.claude/CLAUDE.md`.
+- **Adding a port skill**: `meta/create-port-skill.md`.
+- **Fixing a task**: every reusable task ends with the friction-report
+  instruction, so the agent that hit a trap proposes the generalized rule. A task
+  is a hypothesis until something real runs through it.
+- **Retiring a strategy**: move it to the Retired table in `_strategies.md` with
+  the reason, and do not batch-rewrite the tasks that inlined it. Rewrite each
+  when you next touch it, so every change stays attached to a real use.
