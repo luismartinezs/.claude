@@ -7,7 +7,7 @@ Converge this app's dashboard-created Stripe Product and Price to the attributio
 - Primary: none (run on demand, e.g. after creating live products or going sandbox → live)
 - Convention values: `packages/config/src/index.ts` → `STRIPE_METADATA` (never literals)
 - Anchor: the app's known price id (`STRIPE_PRO_PRICE_ID` in the prod `.env`, or `.env` locally)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

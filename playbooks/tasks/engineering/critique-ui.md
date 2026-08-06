@@ -7,7 +7,7 @@ Diagnose what is actually wrong with an existing UI, separate defects from taste
 - Primary: A running UI (URL or route) and, optionally, a stated complaint ("it feels cluttered", "I can't find anything")
 - Design Principles: `playbooks/tasks/_design-principles.md` (the rubric to critique against)
 - Design System: The project's token file, if one exists
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

@@ -8,7 +8,7 @@ Generate a complete CSS design system (custom properties file) from 3 seed input
   - **Seed color**: A hex color (e.g., `#2563eb`) that represents the brand/product
   - **Font**: Primary font family (e.g., `Inter`, `DM Sans`, `Space Grotesk`)
   - **Density**: `compact`, `default`, or `spacious` (controls spacing scale multiplier)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

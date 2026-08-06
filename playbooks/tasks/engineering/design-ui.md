@@ -17,7 +17,7 @@ Refactor mode is not build mode with a screenshot attached. In build mode you ar
 - Critique: `critique-ui.md` output — **Required in refactor mode.** Do not start a refactor without a findings list and a keep list.
 - Design System: Project's `design-system.css` or equivalent CSS custom properties file (if it exists)
 - Design Principles: `playbooks/tasks/_design-principles.md` (Required — the tactical rules)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

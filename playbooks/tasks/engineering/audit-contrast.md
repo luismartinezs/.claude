@@ -6,7 +6,7 @@ Measure the contrast of every text and meaningful graphic in a UI **as it actual
 ## Inputs
 - Primary: The project's design token file (`tokens.css`, `design-system.css`, or equivalent) and a running instance of the UI
 - Threshold: The target level. Default **AAA (7:1)** for text unless the user says otherwise. See Step 1.
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

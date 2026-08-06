@@ -8,7 +8,7 @@ Stand up a static, build-validated blog in the project's Astro app, and emit `co
 - Rules: `CLAUDE.md` (Required — the stack and its hard constraints)
 - Architecture: `/home/luis/claymore/coding/vertical-slice-architecture.md` (Required — slice rules)
 - Doctrine: `~/.claude/playbooks/tasks/marketing/_geo-rules.md` (Required — section 5, the technical surface)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 
 ## Role & Persona
 You are a **Frontend Architect** building content infrastructure that a non-engineer will use every week.

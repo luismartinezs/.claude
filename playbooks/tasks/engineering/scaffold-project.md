@@ -5,7 +5,7 @@ Bootstrap a complete monorepo from a product spec, producing a working skeleton 
 
 ## Inputs
 - Primary: Product name + refined spec (from `refine-spec` task or user-provided)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 - Architecture doctrine: `/home/luis/claymore/coding/vertical-slice-architecture.md` (Required — slice shape, cross-slice communication rules, split criteria)
 - Reference: Any existing project in the same workspace for pattern matching

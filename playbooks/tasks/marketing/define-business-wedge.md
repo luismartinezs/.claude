@@ -5,7 +5,7 @@ Produce a `business-brief.md` that states what the business sells, to whom, agai
 
 ## Inputs
 - Primary: The product or business to brief (User Input: a product name, or "the whole repo")
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 - Pre-existing documents: any spec, README, landing page, or product doc in the repo (Discovered, not assumed)
 

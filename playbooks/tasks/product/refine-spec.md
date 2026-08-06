@@ -5,7 +5,7 @@ Transform a rough, unreviewed spec draft into a clear, actionable specification 
 
 ## Inputs
 - Primary: Unreviewed Spec Draft (User Input — raw text, document path, or pasted content)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 - Output Template: `playbooks/tasks/product/_spec-template.md` (Required)
 

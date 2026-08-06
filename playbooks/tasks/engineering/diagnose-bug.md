@@ -5,7 +5,7 @@ Identify the root cause of a bug through evidence-based investigation, producing
 
 ## Inputs
 - Primary: Bug report (error message, stack trace, reproduction steps, or user description)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

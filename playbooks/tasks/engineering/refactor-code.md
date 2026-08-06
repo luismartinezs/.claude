@@ -5,7 +5,7 @@ Improve the internal structure of existing code without changing its external be
 
 ## Inputs
 - Primary: Refactoring target (module, file, or specific concern like "reduce duplication in X")
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

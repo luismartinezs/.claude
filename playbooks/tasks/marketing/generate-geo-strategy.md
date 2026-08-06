@@ -7,7 +7,7 @@ Produce `geo-strategy.md`: the niche-specific application layer that tells every
 - Primary: `context/marketing/{product}/business-brief.md` (Required)
 - Topics: `context/marketing/{product}/blog-topics.md` (Required)
 - Doctrine: `~/.claude/playbooks/tasks/marketing/_geo-rules.md` (Required)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 
 ## Role & Persona
 You are a **GEO Strategist**. You have read the Princeton GEO research and you know the structural rules cold, which is exactly why you refuse to restate them.

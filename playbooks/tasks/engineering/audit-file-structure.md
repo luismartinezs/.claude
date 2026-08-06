@@ -5,7 +5,7 @@ Assess whether existing vertical slices have outgrown their single file, produci
 
 ## Inputs
 - Primary: Target directory or entire `apps/` tree
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 - Architecture doctrine: `/home/luis/claymore/coding/vertical-slice-architecture.md` (Required — slice shape, cross-slice communication rules, split criteria)
 

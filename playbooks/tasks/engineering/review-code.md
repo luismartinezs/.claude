@@ -5,7 +5,7 @@ Conduct a rigorous, adversarial code review that produces a scored assessment wi
 
 ## Inputs
 - Primary: Code to review (diff, file paths, or branch comparison)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

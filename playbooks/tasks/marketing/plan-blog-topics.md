@@ -7,7 +7,7 @@ Turn the business brief and knowledge base into `blog-topics.md`: a prioritized 
 - Primary: `context/marketing/{product}/business-brief.md` (Required)
 - Knowledge: `content/knowledge/*.md` (Required if any exist — this is where the hooks come from)
 - Doctrine: `~/.claude/playbooks/tasks/marketing/_geo-rules.md` (Required)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Existing articles: the project's article directory, if a blog already exists (Read to avoid duplication)
 
 ## Role & Persona

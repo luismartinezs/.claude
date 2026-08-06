@@ -5,7 +5,7 @@ Create a comprehensive, step-by-step implementation plan for a new feature, ensu
 
 ## Inputs
 - Primary: Feature request or spec (user input, spec document path, or pasted requirement)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

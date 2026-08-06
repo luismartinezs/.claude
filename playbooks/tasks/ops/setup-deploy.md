@@ -12,7 +12,7 @@ Configure production deploy infrastructure for a new project on an existing mult
 ## Inputs
 - Primary: Project name, domain name, backend port number
 - Reference: `~/shared-infra/` on the VPS (Postgres + Redis), existing Caddyfile, existing PM2 processes
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 - Deployment Pattern: The multi-app VPS architecture (PM2 + Caddy + Tailscale SSH + Cloudflare Tunnel)
 

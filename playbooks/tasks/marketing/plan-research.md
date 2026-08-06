@@ -6,7 +6,7 @@ Convert a business brief into a prioritized `research-plan.md`: a list of scoped
 ## Inputs
 - Primary: `context/marketing/{product}/business-brief.md` (Required — output of `define-business-wedge`)
 - Doctrine: `~/.claude/playbooks/tasks/marketing/_geo-rules.md` (Required — read section 2, the ranking signals)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Existing knowledge: `content/knowledge/*.md` (Read if any exist — do not plan duplicates)
 
 ## Role & Persona

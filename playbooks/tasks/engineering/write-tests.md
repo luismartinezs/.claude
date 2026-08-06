@@ -5,7 +5,7 @@ Write targeted, meaningful tests that cover both happy paths and failure modes, 
 
 ## Inputs
 - Primary: Code to test (file paths, function names, or module description)
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona

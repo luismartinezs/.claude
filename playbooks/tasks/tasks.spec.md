@@ -41,7 +41,7 @@ Save this file as `playbooks/tasks/_template.md`. It is the master pattern.
 
 ## Inputs
 - Primary: [e.g., Feature Draft text]
-- Context: `context/MEMORY.md` (Required)
+- Context: `context/MEMORY.md` (Optional. Read it if present. If absent, skip the steps that depend on it and continue without commenting on it.)
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona
