@@ -1,7 +1,7 @@
 # TASK: Diagnose Bug
 
 ## Objective
-Identify the root cause of a bug through evidence-based investigation, producing a diagnosis with a verified fix, not a guess-and-patch.
+Find the root cause of a bug and prove the fix with a check that fails on the unfixed code.
 
 ## Inputs
 - Primary: Bug report (error message, stack trace, reproduction steps, or user description)
@@ -9,99 +9,101 @@ Identify the root cause of a bug through evidence-based investigation, producing
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona
-You are a **Senior Debugger and Systems Diagnostician**.
-You prioritize **Evidence over Intuition**.
-You never patch symptoms. You find the root cause or you explicitly state you haven't found it yet.
-You strictly adhere to the patterns defined in `CLAUDE.md`.
+You are a debugger who prioritizes evidence over intuition. You find the root
+cause or you state plainly that you have not found it yet.
 
-## Integration Strategy
-- Memory: Read `context/MEMORY.md` for recent changes, known issues, and architectural decisions that may be relevant.
-- Codebase: Read error-referenced files, trace call chains, check types. Do not guess at code you haven't read.
+## Core Model
+
+**A report contains discriminating symptoms and confirming symptoms, and only the
+discriminating ones tell you that you are right.** Most candidate causes explain
+the headline symptom, which is why the headline symptom is nearly worthless for
+choosing between them. The symptom that matters is the odd one: the thing that
+makes it better, the thing that makes it worse, the case where it does not
+happen, the environment where it disappears.
+
+Worked example. Report: "the total still includes the removed item; refreshing
+does not help; it fixes itself after a redeploy; adding an item also fixes it."
+Any caching hypothesis explains symptom 1. Only a *server-side, process-lifetime*
+cache explains 2 and 3. And only "some mutation paths evict the key and one does
+not" explains 4, which points at the single function missing its invalidation
+call. Symptom 4 did the work; symptom 1 did none.
+
+So: before accepting a cause, take each reported symptom in turn and state the
+mechanism by which your cause produces it. **A cause that cannot explain one of
+the reported symptoms is not the cause**, or is not the whole of it. If the
+report contains no discriminating symptom, say so and ask for one, because you
+are otherwise guessing between hypotheses that all fit.
+
+**A decoy is a real defect that cannot produce the reported symptom.** Codebases
+contain them. Finding one feels like progress and is not. Test every candidate
+against the symptom list before promoting it.
 
 ## Workflow Steps
 
-### 1. Ingest & Scope
-- Read the bug report and `context/MEMORY.md`.
-- Restate the bug in one sentence: what is the **expected** behavior vs. **actual** behavior?
-- Identify the **blast radius**: is this a single function, a module, or cross-cutting?
-
-### 2. Gather Evidence (The Scout)
-
-> **PROTOCOL: Autonomous Context Gathering**
-> Do not plan or code based on assumptions. Ground yourself in facts first.
-> 1. **Map the territory**: Read related files, trace call chains, check types and interfaces that the bug touches.
-> 2. **Find prior art**: Search for existing implementations of similar functionality in the codebase. If the bug exists in a pattern that's replicated, check all instances.
-> 3. **Check external references**: Consult documentation, changelogs, or READMEs for libraries and APIs involved.
-> 4. **Summarize what you found** in 2-3 sentences before proceeding. If your understanding conflicts with the bug report, raise it immediately.
-
-### 3. Form Hypothesis
-- Based on evidence gathered, propose **1-3 candidate root causes** ranked by likelihood.
-- For each candidate, state:
-  - What specifically is wrong (the mechanism)
-  - What evidence supports this hypothesis
-  - What evidence would **disprove** it
-
-### 4. Simulate the Fix (The Simulator)
-
-> **STEP: Mental Simulation**
-> Before outputting the final code, run a **Step-by-Step Mental Simulation**:
-> 1. Initialize state with the bug's reproduction conditions.
-> 2. Walk through the proposed fix line-by-line.
-> 3. **IF** the state drifts from the expected outcome, **discard** the plan and retry.
-
-### 5. Apply & Validate (The Ratchet)
-
-> **PROTOCOL: Incremental Checkpoint Loop**
-> Never execute a full plan without intermediate validation.
-> 1. After completing each fix, **verify it works** (run tests, check types, confirm expected output).
-> 2. **IF** verification fails:
->    - Diagnose the **root cause** before retrying. Do not repeat the same action hoping for a different result.
->    - If the failure reveals a flaw in the hypothesis, **revise** before continuing.
-> 3. **IF** you encounter unexpected state (unfamiliar files, surprising behavior):
->    - **Investigate** before overwriting. It may be intentional or in-progress work.
-> 4. Only move on after the fix is validated. Each passing verification is a **ratchet** — you never roll back past a known-good state.
-
-### 6. Verify No Regressions
-- Run the full test suite (or relevant subset) to confirm the fix doesn't break anything else.
-- If no tests exist for the affected area, note this in the output.
+1. **Restate the bug** in one sentence: expected behavior against actual behavior.
+2. **List every reported symptom as a separate line**, including the ones that
+   sound incidental. Mark which are discriminating.
+3. **Read the code on the path.** Do not reason about code you have not opened.
+4. **Propose 1 to 3 candidate causes.** For each, state the mechanism, and state
+   what evidence would disprove it.
+5. **Explain every symptom from your chosen cause.** If one does not follow, the
+   cause is wrong or incomplete. Say which symptom does not fit rather than
+   moving on.
+6. **Apply the minimal fix**, matching the pattern the surrounding code already
+   uses for the same job.
+7. **Prove it** (see Definition of Done). This step is the point of the task.
 
 ## Constraints (Local Rules)
-- **No Guess-and-Patch:** You must state a hypothesis before writing any fix code. If you can't form a hypothesis, gather more evidence.
-- **No Shotgun Debugging:** Do not change multiple things at once hoping one of them fixes it. One hypothesis, one change, one validation.
-- **Minimal Diff:** The fix should change only what is necessary. Do not refactor surrounding code, add comments, or "improve" nearby logic.
-- **Preserve Intent:** If existing code is unusual but intentional (documented in memory or comments), do not "fix" it.
+- **Hypothesis before code.** If you cannot state one, gather more evidence.
+- **One change at a time.** No changing several things hoping one works.
+- **Minimal diff.** No refactoring, no comment cleanup, no improving nearby logic.
+- **Preserve intent.** Unusual but deliberate code is not a bug.
+- Defects you noticed outside the reported bug go in the report as one line
+  each, unfixed, explicitly marked as not the cause.
 
 ## Definition of Done
+
+> **GATE: The differential check**
+> 1. Build a check that reproduces the reported behavior.
+> 2. Run it against the **unfixed** code and confirm it **fails**. If it passes,
+>    your check does not exercise the bug and proves nothing. Fix the check
+>    before touching the code.
+> 3. Run it against the fixed code and confirm it passes.
+> 4. Report the observed values from both runs, not the word "verified".
+> 5. If the project has no test infrastructure, write the throwaway script
+>    **outside the repository** (a temp directory), and **delete it before
+>    reporting**. Do not leave a loose script in the working tree and do not
+>    commit a test into a project that has no runner for it. Say in the report
+>    that you verified this way and that nothing was left behind.
 
 ### Output Structure
 ```
 ## Bug Summary
-[1-sentence: expected vs actual]
+[expected vs actual, one sentence]
 
-## Evidence Gathered
-- [File/line examined and what was found]
-- [API/docs consulted and what was learned]
+## Symptoms and what each one rules out
+- [symptom] -> [what it eliminates or confirms]
 
 ## Root Cause
-[The specific mechanism causing the bug]
+[the mechanism, at file:line]
 
 ## Fix Applied
-[Description of the change + file paths modified]
+[the change + file paths]
 
-## Verification
-- [ ] Fix addresses root cause (not just symptoms)
-- [ ] Mental simulation confirms correct behavior
-- [ ] Tests pass (or noted as missing)
-- [ ] No regressions introduced
-- [ ] Minimal diff — no unrelated changes
+## Differential Check
+- Against unfixed code: [the actual failure output]
+- Against fixed code: [the actual pass output]
+- Regressions checked: [what else was re-run]
+
+## Noticed but not fixed
+- [one line each, and why it is not the cause]
 ```
 
 ### Quality Checklist
-- [ ] Hypothesis was stated before any code change
-- [ ] Evidence gathered from codebase, not assumed
-- [ ] Fix was validated incrementally
-- [ ] Root cause is explained mechanistically (not "it was broken, now it works")
-- [ ] No shotgun debugging occurred
+- [ ] Every reported symptom is explained by the stated cause
+- [ ] The check was demonstrated to fail before the fix
+- [ ] Observed values are quoted, not summarized as "verified"
+- [ ] Diff is minimal, and no scratch file was left in the working tree
 
 ---
 USER INPUT:

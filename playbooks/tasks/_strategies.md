@@ -1,166 +1,153 @@
-# Cognitive Strategies Library
-*Copy-paste these blocks into your Tasks to give the agent "superpowers".*
-*Select only the strategies relevant to the specific task.*
+# Strategies Library
+
+*Copy-paste these blocks into your Tasks. Select only what the task actually needs.*
+
+## The rule that decides what belongs here
+
+**A strategy earns its place only if following it produces an artifact or an
+observable act that would not otherwise exist.** Instructions that describe how
+to think ("be adversarial", "consider failure modes", "read the surrounding
+code", "simulate the logic mentally") measured as worth nothing: in 8 A/B runs
+across 3 task types, playbooks built from them found exactly the same defects as
+a plain request while costing 61% to 153% more. A capable model already thinks
+that way, so restating it buys tokens and latency and no findings.
+
+What did measure: commanded actions. Run a check that fails on the broken
+version. Apply the fix and prove it. Stop and ask instead of assuming. Write the
+decision rule down. Those change what happens, so they are what this file holds.
+
+**Before adding a strategy, ask: if the model ignored this line, would the output
+be observably different?** If you cannot name the difference, do not add it.
 
 ---
 
-## 1. Input & Validation (The "Gatekeeper")
+## 1. The Prover (negative test)
 
-### Strategy: The Gatekeeper (Stop & Ask)
-*Use when:* The request might be vague, incomplete, or ambiguous.
-*Placement:* Top of "Workflow Steps".
+*Use when:* the task claims something now works, is guarded, is fixed, or is safe.
+*Placement:* inside "Definition of Done", as a gate on reporting completion.
 
-> **PROTOCOL: Gap Analysis & Inquiry**
-> Before generating any plan or code, you must perform a **Gap Analysis**:
-> 1.  Identify any missing requirements (e.g., edge cases, error handling, platform specifics).
-> 2.  **IF** critical information is missing:
->     * **STOP** immediately.
->     * Output a list of 3-5 specific clarifying questions to the user.
->     * **DO NOT** proceed until these are answered.
-> 3.  **ELSE**: Proceed with the workflow.
-
----
-
-## 2. Design & Option Generation (The "Explorer")
-
-### Strategy: The Explorer (Divergent Thinking)
-*Use when:* Designing new features, architecture, or when the "best" way isn't obvious.
-*Placement:* Before "Workflow Steps" or inside "Design Phase".
-
-> **PROTOCOL: Divergent Thinking**
-> Do not lock onto the first solution you find.
-> 1.  Generate **3 Distinct Approaches** to solve this problem (e.g., "Fastest", "Safest", "Most Scalable").
-> 2.  List the Pros/Cons of each approach.
-> 3.  Select the best approach and explicitly justify why it wins.
+> **GATE: Prove it with a check that can fail**
+> Do not report done on the strength of reading the code.
+> 1. Run a check that **fails against the unfixed or unguarded version** and
+>    passes against yours. If you cannot make it fail, the check proves nothing
+>    and you have not verified anything.
+> 2. Prefer the failure mode that is **slow or partial** over the one that is
+>    total. A dependency that is stopped refuses instantly and passes even when
+>    your timeout is broken; a dependency that is hung is what actually exercises
+>    the guard.
+> 3. Report the observed values, not the conclusion: "pre-fix FAIL got 800,
+>    expected 500; post-fix 11 assertions pass", not "verified".
+> 4. If the check crashes rather than failing cleanly, that is a finding about
+>    the target, not a flaky test. Diagnose it before re-running.
 
 ---
 
-## 3. Structural Planning (The "Architect")
+## 2. The Decision Rule (branch points)
 
-### Strategy: The Architect (Decomposition)
-*Use when:* The task involves multiple files, systems, or steps (Complexity > 5).
-*Placement:* Before "Workflow Steps".
+*Use when:* the task hits something that legitimately differs per target or per project.
+*Placement:* wherever the task names a choice.
 
-> **CONSTRAINT: Atomic Decomposition**
-> You cannot execute a large plan at once.
-> 1.  Break the solution into **Atomic Units** (steps that can be implemented and committed independently).
-> 2.  Order them by dependency (Base -> Dependent).
-> 3.  Execute only one unit at a time to minimize context drift.
-
----
-
-## 4. Scoping & Filtering (The "Pareto Filter")
-
-### Strategy: The Pareto Filter (80/20)
-*Use when:* Refactoring, Optimization, or MVP planning.
-*Placement:* Inside "Constraints".
-
-> **CONSTRAINT: The Pareto Principle**
-> You are forbidden from fixing/optimizing everything.
-> 1.  Identify the **20% of the code** (the "Hot Path") that drives **80% of the complexity/value**.
-> 2.  Focus your changes *only* on that critical 20%.
-> 3.  Explicitly ignore low-value edge cases or stable legacy code unless critical.
+> **CONSTRAINT: Every branch point ships with its classes and its actions**
+> Naming a thing to "check" without saying what to do per outcome creates the
+> feeling of having handled it while forcing the next agent to improvise.
+> 1. List the **classes** the situation can fall into.
+> 2. Give the **action for each class**.
+> 3. State the **null class explicitly** (the target has none of this, the file
+>    does not exist, there is no precedent), and what to do then. The null class
+>    is where improvisation does the most damage.
 
 ---
 
-## 5. Style & Consistency (The "Historian")
+## 3. The Gatekeeper (stop and ask)
 
-### Strategy: The Historian (Pattern Matching)
-*Use when:* Adding code to an existing module or writing standard UI/Backend logic.
-*Placement:* Inside "Constraints" or "Role".
+*Use when:* proceeding on a wrong reading would waste the whole task.
+*Placement:* top of "Workflow Steps".
 
-> **CONSTRAINT: Precedent Adherence**
-> Do not invent new patterns. "Do as the Romans do."
-> 1.  Find 2 existing files in the codebase that solve a similar problem.
-> 2.  Extract their patterns (naming, error handling, structure, library usage).
-> 3.  Strictly mimic these patterns in your new code.
-
----
-
-## 6. Logic Verification (The "Simulator")
-
-### Strategy: The Simulator (Mental Sandbox)
-*Use when:* Writing complex algorithms, state machines, or debugging tricky logic.
-*Placement:* Middle of "Workflow Steps" (Before coding).
-
-> **STEP: Mental Simulation**
-> Before outputting the final code, run a **Step-by-Step Mental Simulation**:
-> 1.  Initialize state with sample variables (e.g., `i=0`, `user=null`).
-> 2.  Walk through your proposed logic line-by-line.
-> 3.  **IF** the state drifts from the expected outcome, **discard** the plan and retry.
+> **GATE: Stop before building on an assumption**
+> 1. Name the decisions this task cannot make for itself.
+> 2. **IF** one is genuinely undetermined by the input and the codebase: stop,
+>    ask 1-3 specific questions, and wait.
+> 3. **ELSE** proceed. Do not manufacture questions to satisfy this step, and do
+>    not ask about anything you could settle by reading a file.
 
 ---
 
-## 7. Safety & Risk (The "Red Team")
+## 4. The Ratchet (checkpoint per unit)
 
-### Strategy: The Red Team (Adversarial)
-*Use when:* Security reviews, Architecture proposals, or Critical infrastructure changes.
-*Placement:* End of "Workflow Steps".
+*Use when:* multi-step changes where a silent failure compounds into later steps.
+*Placement:* wrapping each step of "Workflow Steps".
 
-> **STEP: Self-Critique (Red Teaming)**
-> Switch persona to "The Attacker." Try to break your own plan.
-> 1.  Identify 3 potential failure modes (e.g., race conditions, scale limits, malicious input).
-> 2.  Verify that your plan explicitly mitigates these risks.
-> 3.  If unmitigated, revise the plan immediately.
-
----
-
-## 8. Quality Measurement (The "Quantifier")
-
-### Strategy: The Quantifier (Scoring)
-*Use when:* Auditing code, Triaging issues, or assessing "readability".
-*Placement:* Inside "Output Template".
-
-> **OUTPUT: Confidence Score (0-100)**
-> Provide a confidence score for your solution based on verification.
-> * **< 70**: "I am guessing/inferring; manual review required."
-> * **> 90**: "I have verified this against the codebase/docs."
-> * **Metric Breakdown**: [Readability: X/100], [Safety: Y/100], [Performance: Z/100].
+> **PROTOCOL: Validate before stacking**
+> 1. Break the work into units that can each be verified on their own.
+> 2. After each unit, run the target's own check (typecheck, tests, build).
+> 3. **IF** it fails, diagnose the cause before retrying. Do not repeat the same
+>    action expecting a different result.
+> 4. Attach each toolchain check to the step that **first** needs it, not only to
+>    final verification. A type error found after five steps invalidates five
+>    steps.
 
 ---
 
-## 9. Autonomous Research (The "Scout")
+## 5. The Pareto Filter (forbidden scope)
 
-### Strategy: The Scout (Context Gathering)
-*Use when:* Working in unfamiliar code, integrating with existing systems, or any task where acting on assumptions is risky.
-*Placement:* Top of "Workflow Steps" (after Gatekeeper, before planning).
+*Use when:* refactors, audits, optimizations, anything with an unbounded surface.
+*Placement:* inside "Constraints".
 
-> **PROTOCOL: Autonomous Context Gathering**
-> Do not plan or code based on assumptions. Ground yourself in facts first.
-> 1.  **Map the territory**: Read related files, trace call chains, check types and interfaces that your change will touch.
-> 2.  **Find prior art**: Search for existing implementations of similar functionality in the codebase. If it already exists, use or extend it — do not rebuild.
-> 3.  **Check external references**: Consult documentation, changelogs, or READMEs for libraries and APIs you will interact with.
-> 4.  **Summarize what you found** in 2-3 sentences before proceeding. If your understanding conflicts with the task description, raise it immediately.
+> **CONSTRAINT: You are forbidden from fixing everything**
+> 1. Name the 20% that carries the value or the risk.
+> 2. Change only that.
+> 3. Everything else you noticed goes in the report as one line each, unfixed.
 
 ---
 
-## 10. Incremental Validation (The "Ratchet")
+## 6. The Friction Report (close the loop)
 
-### Strategy: The Ratchet (Validate & Adapt)
-*Use when:* Multi-step implementations, refactors, or any change where silent failures compound.
-*Placement:* Inside "Workflow Steps" (wrap each Atomic Unit from the Architect).
+*Use when:* the task is reusable, so its own defects are worth capturing.
+*Placement:* final instruction of the task.
 
-> **PROTOCOL: Incremental Checkpoint Loop**
-> Never execute a full plan without intermediate validation.
-> 1.  After completing each Atomic Unit, **verify it works** (run tests, check types, confirm expected output).
-> 2.  **IF** verification fails:
->     * Diagnose the **root cause** before retrying. Do not repeat the same action hoping for a different result.
->     * If the failure reveals a flaw in the plan, **revise remaining steps** before continuing.
-> 3.  **IF** you encounter unexpected state (unfamiliar files, surprising behavior):
->     * **Investigate** before overwriting. It may be intentional or in-progress work.
-> 4.  Only proceed to the next unit after the current one is validated. Each passing step is a **ratchet** — you never roll back past a known-good state.
+> **INSTRUCTION: Report what this task got wrong**
+> If the work forced a deviation from these instructions, or hit a trap they did
+> not warn about, tell the user and propose the edit as a **generalized rule**,
+> not a patch for this one case. A reusable task is a hypothesis until something
+> real runs through it.
 
 ---
 
-## 11. Output Framing (The "Narrator")
+## Output-format blocks (not strategies)
 
-### Strategy: The Narrator (Communication Design)
-*Use when:* Delivering results, explaining tradeoffs, or any output the user must act on.
-*Placement:* End of "Workflow Steps" or inside "Output Template".
+These change how the answer is presented, not what work happens. Use them when
+you want the format; do not expect them to improve the findings.
 
-> **PROTOCOL: Structured Communication**
-> Lead with the answer. Support with evidence. Respect the user's time.
-> 1.  **Lead with the outcome**: What was done, what changed, what the user needs to know *first*.
-> 2.  **Separate "what I did" from "what you need to decide"**: If there are open questions or tradeoffs, list them explicitly — do not bury decisions inside explanations.
-> 3.  **Match depth to stakes**: A one-line config change needs one line of explanation. An architecture decision needs context, alternatives considered, and rationale.
-> 4.  **Define "done"**: State what was completed, what was deliberately left out, and what the logical next step is.
+**Severity grouping.** Group findings as Critical (causes a production incident)
+/ Warning (causes one under specific conditions) / Nit (style), and give every
+finding a file, a line, and a concrete fix.
+
+**Scored verdict.** `Score: X/100` with a metric breakdown, plus one of
+APPROVE / REQUEST CHANGES / NEEDS DISCUSSION and a one-sentence justification.
+
+---
+
+## Retired
+
+Cut after measurement showed no effect on output quality. Do not reintroduce
+without a test that shows a difference.
+
+| Retired | Why |
+|---|---|
+| The Historian (find 2 similar files, mimic) | No additional findings in either `review-code` replicate, and it burns a paragraph explaining itself when the repo has no precedent. If you need it, it is a Decision Rule with a null class, not a strategy. |
+| The Red Team (identify 3 failure modes) | Both arms found the same defects. The model is adversarial by default. |
+| The Simulator (mental walkthrough) | Not observable in the output. Superseded by The Prover, which demands a real check. |
+| The Scout (read related files first) | Every plain-request arm already read the files before answering. |
+| The Quantifier (confidence score) | Real, but it is a format, not a strategy. Moved to output-format blocks. |
+| The Narrator (lead with the outcome) | Duplicates the "How to Structure an Explanation" rules in `~/.claude/CLAUDE.md`, which apply to every session already. |
+| The Explorer (3 approaches, pros/cons) | Untested. Kept out until measured, since it reads as describe-thinking. Re-add with evidence. |
+| The Architect (atomic decomposition) | Folded into The Ratchet, which carries the same decomposition plus the check that makes it observable. |
+
+**Migration status, as of 2026-08-06.** Retiring a block here does not edit the
+tasks that already inlined it, because tasks are self-contained by design. Three
+tasks were rewritten against this doctrine and measured (`review-code`,
+`write-tests`, `diagnose-bug`). Roughly 15 others still carry retired blocks
+inline, most of them the `audit-*` family, which is built almost entirely from
+Historian, Red Team and Quantifier and should therefore behave like the old
+`review-code` (no additional findings, 61% to 153% more cost). Rewrite them when
+you next touch one; do not batch-edit them unmeasured.

@@ -1,7 +1,7 @@
 # TASK: Write Tests
 
 ## Objective
-Write targeted, meaningful tests that cover both happy paths and failure modes, matching existing test patterns in the codebase.
+Write tests that fail when the code breaks, and prove at least one of them does.
 
 ## Inputs
 - Primary: Code to test (file paths, function names, or module description)
@@ -9,106 +9,105 @@ Write targeted, meaningful tests that cover both happy paths and failure modes, 
 - Rules: `CLAUDE.md` (Required)
 
 ## Role & Persona
-You are a **Senior QA Engineer who thinks like an attacker**.
-You are:
-- **Adversarial** — you don't just test that things work. You test that they fail correctly.
-- **Pattern-consistent** — you write tests that look like the existing tests, not tests from a tutorial.
-- **Focused** — you test behavior, not implementation. If the internals change but the output is the same, tests should still pass.
-- **Minimal** — every test earns its place. No redundant tests that verify the same thing differently.
-You strictly adhere to the patterns defined in `CLAUDE.md`.
+You are a QA engineer. You test that things fail correctly, not only that they work.
 
-## Integration Strategy
-- Memory: Read `context/MEMORY.md` for known failure modes, past bugs, and testing decisions.
-- Codebase: Read existing test files to understand framework, conventions, and patterns before writing anything.
+## Core Model
+
+**A test that was written by reading the code and recording what it does is a
+snapshot, not a test.** It passes on the first run by construction, and it will
+keep passing through any change that the author of the change also believed was
+correct. Its only real function is to detect *unintended* change. The measure of
+a test is therefore not whether it passes but **whether it fails when the code is
+wrong**, and you do not know that until you have made the code wrong.
+
+This produces two distinct obligations that are easy to conflate.
+
+1. **Coverage** is about which behaviors have a test at all. Missing coverage is
+   invisible: nothing fails, nothing warns, the suite is green.
+2. **Sensitivity** is about whether those tests would notice a defect. A suite
+   can have full coverage and near-zero sensitivity, because assertions written
+   from observed output cannot contradict the code they were copied from.
+
+**Pinning a defect is the specific trap.** When the code under test is already
+wrong, reading it and asserting what it does converts the defect into a
+specification, and the suite now actively defends the bug: the eventual correct
+fix shows up as a test failure and looks like a regression. So when observed
+behavior looks wrong (a total that can go negative, a discount that adds money,
+an error path that returns success), you must not quietly assert it. Either
+assert the behavior you believe is correct and leave the test red with a comment
+saying why, or assert current behavior with an explicit marker that it documents
+rather than endorses, and say so in the report. Never both silently.
+
+**Prefer coverage over minimalism when they conflict.** A redundant test costs a
+few seconds of runtime. A missing edge case costs an outage. If you are deciding
+whether a boundary is worth its own test, write it.
 
 ## Workflow Steps
 
-### 1. Study the Target & Existing Tests (The Scout)
-
-> **PROTOCOL: Autonomous Context Gathering**
-> Do not plan or code based on assumptions. Ground yourself in facts first.
-> 1. **Read the code under test**: Understand inputs, outputs, side effects, and error conditions.
-> 2. **Find existing tests**: Search for test files in the project. Note the framework (bun:test, vitest, jest), file naming convention, describe/it structure, assertion style.
-> 3. **Find prior art**: Locate 2 existing test files that test similar functionality. These are your pattern templates.
-> 4. **Summarize what you found** in 2-3 sentences before writing any tests.
-
-### 2. Match Test Patterns (The Historian)
-
-> **CONSTRAINT: Precedent Adherence**
-> Do not invent new patterns. "Do as the Romans do."
-> 1. Extract the exact patterns from existing test files: file location, naming, imports, describe nesting, setup/teardown, assertion library.
-> 2. Your new tests MUST follow these patterns identically.
-> 3. If no test files exist yet, use the project's test framework defaults and keep it simple.
-
-### 3. Design Test Cases (The Red Team)
-
-> **STEP: Adversarial Test Design**
-> Switch persona to "The Attacker." Try to break the code.
-> 1. **Happy path**: What should happen when everything is correct? (1-2 tests)
-> 2. **Boundary conditions**: What happens at the edges? Empty input, max values, type boundaries. (1-3 tests)
-> 3. **Error conditions**: What happens when things go wrong? Invalid input, network failure, missing data. (1-3 tests)
-> 4. **State transitions**: If the code manages state, what happens with unexpected sequences? (0-2 tests)
-> 5. For each test case, state: **What behavior** is being verified and **What could go wrong** if this test didn't exist.
-
-### 4. Write Tests
-- Write tests following the patterns identified in Step 2.
-- Each test should have a descriptive name that reads as a behavior specification (e.g., "returns empty array when no issues match filter" not "test filter").
-- Group related tests in `describe` blocks matching the module/function structure.
-- Avoid mocking unless the code has external side effects (network, filesystem, database). Prefer testing with real data.
-
-### 5. Validate
-- Run the test suite to confirm all new tests pass.
-- Verify that existing tests still pass.
-- If a new test fails, determine: is the test wrong, or did it find a bug? If it found a bug, report it.
+1. **Read the code under test.** Note inputs, outputs, side effects, error paths.
+2. **Find the existing test setup**: framework, file naming, assertion style,
+   location convention. Match it exactly. If there is no precedent, use the
+   project's framework defaults and keep it simple. Do not introduce a new
+   framework, and do not report at length on the absence of precedent.
+3. **Enumerate behaviors before writing any test**, in this order: happy path,
+   every boundary (empty, zero, negative, over-limit, maximum), every error path,
+   and any order-dependence or state transition. Write the list down.
+4. **Write the tests.** Names read as behavior specifications ("returns zero when
+   the discount exceeds the subtotal"), not as labels ("test discount").
+5. **Flag anything that looks like a defect** rather than pinning it silently
+   (see Core Model).
+6. **Run the mutation check** (see Definition of Done). This step is the point of
+   the task.
 
 ## Constraints (Local Rules)
-- **No Redundant Tests:** If two tests verify the same behavior with different inputs, keep the more meaningful one.
-- **No Implementation Testing:** Test observable behavior (inputs -> outputs), not internal implementation details.
-- **No Over-Mocking:** Only mock external boundaries (APIs, databases). Never mock internal functions.
-- **Descriptive Names:** Test names must describe behavior, not just "test X". A failing test name should tell you what broke.
-- **Match Framework:** Use whatever test framework the project already uses. Do not introduce a new one.
+- **Match the existing framework and conventions.** Never introduce a new runner.
+- **Behavior, not implementation.** If internals change and outputs do not, the
+  tests must still pass.
+- **Mock only external boundaries** (network, filesystem, database). Never mock
+  internal functions.
+- **No test that cannot fail.** A test asserting a tautology, or asserting a
+  value it computed with the same code path, is deleted rather than kept.
 
 ## Definition of Done
 
+> **GATE: The mutation check**
+> Prove the suite has sensitivity, not just coverage.
+> 1. Pick the most load-bearing behavior you tested.
+> 2. **Deliberately break the code under test** in a small, realistic way (flip a
+>    comparison, drop a clamp, remove an invalidation, change a sign).
+> 3. Run the suite. Confirm at least one test **fails**, and quote the failure.
+>    If everything still passes, your tests do not test anything: fix them.
+> 4. **Restore the code exactly** and confirm the suite is green again.
+> 5. Report the mutation you used and the resulting failure.
+
 ### Output Structure
 ```
-## Test Plan: {Module/Function Name}
+## Test Plan: {Module}
 
-## Patterns Used
-- Framework: [bun:test | vitest | jest | etc.]
-- Reference test files: [file1, file2]
-- File location: [where the new test file lives]
+## Setup Matched
+- Framework: [...]  File location: [...]  Precedent: [file, or "none, used defaults"]
 
-## Test Cases
+## Behaviors Covered
+### Happy path / Boundary / Error
+- [test name]: [behavior]
 
-### Happy Path
-- [Test name]: [behavior verified]
+## Suspected Defects (not pinned silently)
+- [behavior, why it looks wrong, and how the test is marked]
 
-### Boundary/Edge
-- [Test name]: [behavior verified]
+## Mutation Check
+- Mutation applied: [the exact change]
+- Result: [the actual failure output]
+- Restored: [confirmation the suite is green again]
 
-### Error/Failure
-- [Test name]: [behavior verified]
-
-## Coverage Assessment
-- Key behaviors covered: [list]
-- Deliberately not tested: [list with justification]
-- Potential gaps: [areas where more tests could help, flagged for future]
-
-## Verification
-- [ ] All new tests pass
-- [ ] Existing tests still pass
-- [ ] Test patterns match existing codebase conventions
-- [ ] No redundant tests
-- [ ] No implementation details tested (only behavior)
+## Gaps
+- [what is deliberately untested and why]
 ```
 
 ### Quality Checklist
-- [ ] Existing test patterns were studied before writing
-- [ ] At least 3 failure modes were tested
-- [ ] Test names describe behavior, not implementation
-- [ ] No excessive mocking (only at external boundaries)
-- [ ] Each test verifies a unique behavior
+- [ ] Every boundary from step 3 has a test or an explicit justification for not having one
+- [ ] The mutation check was run and its failure output is quoted
+- [ ] The code under test was restored
+- [ ] No suspected defect was asserted as correct without a marker
 
 ---
 USER INPUT:

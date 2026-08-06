@@ -13,21 +13,37 @@ You are a [Role, e.g., Principal Architect].
 You prioritize [Core Value, e.g., maintainability over speed].
 You strictly adhere to the patterns defined in `CLAUDE.md`.
 
-## Integration Strategy
-- Memory: Read `context/MEMORY.md` for project state and recent decisions.
-- Codebase: Read relevant files to verify current state before making changes. Do not guess.
+Keep this to two or three lines. A persona does not change what gets found; it
+only sets tone. The work happens in Core Model and Workflow Steps.
+
+## Core Model
+[**The most valuable section, and the one to write first.** Put here the domain
+knowledge the model cannot infer from the code in front of it: a distinction that
+decides the whole task, a classification scheme, a failure mode with a name, the
+reason a non-obvious rule exists.
+
+The test: would a capable model with no access to this file arrive at the same
+framing on its own? If yes, delete the section rather than filling it. If the
+task has no such knowledge, that is a signal the task may not be worth writing.
+
+Worked example, from `meta/create-port-skill.md`: "Every piece of the feature
+must be classified into exactly one of invariants (must survive any port),
+adaptation points (expected to differ per target), or reference instantiation
+(one concrete example, never literal truth). Misclassifying instantiation as
+invariant is the main failure mode of ported features."]
 
 ## Workflow Steps
-- Ingest: Read the User Input and `context/MEMORY.md`.
-- Map: Identify relevant files in the codebase using `ls` or `grep`.
-- [Step Name]: [Specific instruction, e.g., "Draft the interface definitions"]
+- Ingest: read the input and the files it names.
+- [Step Name]: [a specific instruction. Prefer commanded actions over described
+  thinking. "Run the target's typecheck" beats "consider type safety".]
 - [Step Name]: [Specific instruction]
-- Verify: Check your output against the Constraints below.
-- Definition of Done: Ensure the output meets the specific criteria (e.g., "Must compile", "Must have tests").
+- Verify: [name the check that must pass, and what it is run against]
+- Definition of Done: [the objective criteria, e.g. "typecheck clean", "the
+  negative test fails on the unfixed version"]
 
 ## Constraints (Local Rules)
 - [Rule 1, e.g., "Do not remove existing comments."]
-- [Rule 2, e.g., "Output must be a single Markdown block."]
+- [Rule 2, e.g., "Report findings outside the named scope as one line each, unfixed."]
 
 ## Definition of Done
 
@@ -35,7 +51,7 @@ You strictly adhere to the patterns defined in `CLAUDE.md`.
 [Insert the exact format you want the agent to produce here]
 
 ### Quality Checklist
-- [ ] [Criterion 1]
+- [ ] [Criterion 1, stated so it can be answered yes or no from the output alone]
 - [ ] [Criterion 2]
 
 ---

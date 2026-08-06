@@ -200,30 +200,15 @@ moving on. Fix any type errors or missing imports immediately.
 
 ### Legibility Pass (code rot from agentic work)
 
-Applies to every feature or bugfix task where you edit code. The goal is narrow:
-make the code cheaper for the next agent to understand, so future sessions spend
-fewer tokens re-deriving what something does. This is not classic refactoring
-(DRY, SOLID). It targets AI-legibility rot: spots where you burned effort because
-the code was unclear, undocumented, or missing context.
+While editing, note the spots where you burned effort because pre-existing code
+was unclear, undocumented, or missing context: a file you had to read three or
+more times, a function you could only understand by tracing it by hand. Mention
+them in one line at the end of your reply if any were bad enough to matter.
 
-Capture the signal in the moment, not at the end. When you have to read a
-pre-existing file three or more times, or you cannot tell what a function does
-without tracing it by hand, that is rot. Note it when it happens.
-
-Before declaring the task done, resolve each flagged spot:
-
-- **Tier 1, legibility (safe, no behavior change).** Fix it in place now. Add a
-  comment that explains the *why* (not the what), clarify a confusing name, or
-  add/extend a co-located `AI-CONTEXT.md`. Keep edits limited to code you already
-  touched for the task. This is where most of the value is.
-- **Tier 2, structural (changes the shape of the code).** Do NOT edit as a
-  drive-by. Append one line to `.claude/refactor-backlog.md` at the repo root, in
-  the form `file:line | what was confusing | suggested fix`. Mention it in your
-  final message and offer to run a dedicated refactor pass on it later.
-
-If nothing rotted, or the edits were trivial, say nothing. No filler, no
-manufactured findings. A Stop hook reminds you of this pass whenever a session
-edited code, so it does not depend on you remembering.
+Do not run a full pass unprompted. `/legibility` runs it on demand and holds the
+tiering rules. Measured 2026-08-06: running it automatically on every
+code-editing session cost $0.10 and 17 seconds per session and returned no
+finding on 3 of 3 firings, so it is now invoked rather than triggered.
 
 ### Google Calendar
 
