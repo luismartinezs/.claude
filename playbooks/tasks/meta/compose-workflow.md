@@ -45,6 +45,12 @@ List any steps marked ad-hoc. For each:
 - If recurring: recommend creating a new task for it
 - If one-off: leave as ad-hoc with inline instructions
 
+### 5. Register It
+If the new workflow went to the global library (`~/.claude/playbooks/workflows/`), add its
+name to the "Global library index" list in `~/.claude/CLAUDE.md` under `workflows`. That
+index is how a fresh session knows the workflow exists without reading the directory. A
+project-local workflow is not indexed.
+
 ## Constraints
 - **No phantom tools:** Do not reference tools that aren't installed or configured. Verify first.
 - **Reuse over invention:** Prefer existing tasks over ad-hoc steps. The task catalog exists for a reason.

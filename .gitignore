@@ -1,12 +1,20 @@
-# Ignore everything by default
+# Ignore everything by default, then whitelist the authored config.
+#
+# WHY AN ALLOWLIST: this directory is mostly harness runtime state (projects/,
+# plugins/, file-history/, session-env/, history.jsonl, jobs/, paste-cache/,
+# debug/, .credentials.json). None of that is versionable and some of it is
+# secret, so the safe default is to ignore everything and name the exceptions.
+#
+# CONSEQUENCE, read before deleting anything here: only the paths listed below
+# are recoverable from git. skills/, hooks/, settings.json and .claude/ are NOT
+# tracked, so removing a file in those is irreversible. Check `git ls-files`
+# before you rm.
 *
 
 # Keep this file
 !.gitignore
 
-# Keep everything under agents/ and commands/
-!agents/
-!agents/**
+# Authored config, tracked and therefore recoverable
 !commands/
 !commands/**
 !context/

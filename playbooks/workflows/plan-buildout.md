@@ -49,7 +49,7 @@ This covers the portion of a build whose correctness a script can decide. It doe
    - Input: `docs/runbook.md`
    - Task: none. The operator pastes one prompt per session and clears between rungs.
    - Per milestone: paste the prompt, check the done-condition, clear. Closeout is carried inside the rung's own prompt, so the agent writes the card's results and Notes before it stops. The operator is never asked to remember a second command.
-   - On derail: `/task:write-milestone-card M<n> derail` (Notes only, no fix attempt), then clear and restart from the card.
+   - On derail: `/task write-milestone-card M<n> derail` (Notes only, no fix attempt), then clear and restart from the card.
 
 ## Gaps & Recommendations
 - **This is extracted from one project.** Until it has produced a usable runbook on a second, unrelated build, treat the tasks as a draft. The signal to watch is Step 4: if the emitted runbook needs heavy hand-editing, those edits are the real content and belong back in `write-runbook.md`.

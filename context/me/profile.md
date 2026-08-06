@@ -23,6 +23,9 @@
 <!-- money, time, health, location, legal -->
 - Hard no on raising money. No VC, no angels, no dilution. Bootstrapped only.
 - Hard no on hiring employees. Solo or contractors only. No payroll, no management.
+- Monthly burn about $833 in Chiang Mai, stable. Monthly freelance income about $2,400, unpredictable. (2026-03)
+- Liquid capital about $25,000 USD in Mercury LLC, plus about EUR 80,000 in UCITS ETFs at DEGIRO. Runway is not the constraint. (2026-03)
+- Spanish passport. Tax residence Thailand, deregistered from Spain via Modelo 030. Banking across Mercury, Wise, Interactive Brokers, DEGIRO.
 
 ## How I decide
 - Treats every dependency as a liability. Prefers vanilla TypeScript over frameworks.
@@ -33,16 +36,19 @@
 - Explain the mechanics and root cause, not just the fix. Assume no prior expertise in the topic.
 - Never use em-dashes in prose.
 - No classes. Pure functions. Zod for validation.
+- On anything unverifiable: give the full answer anyway, then one line naming which part is unverified. Do not withhold and do not hedge throughout.
 
 ## Domain knowledge
 - Standard stack: Bun, TypeScript, Astro, Vue, Hono, Drizzle, Tailwind, PM2 on a VPS.
 - Architecture doctrine: vertical slice architecture.
+- Do not skip the basics on: cold outreach and sales, customer discovery and validation, marketing and SEO, pricing and finance. None of these are assumed knowledge. (2026-08-06)
 
 ## Life and health
 <!-- rhythm, energy, body, location logistics, obligations -->
 - No reliable pattern to his good working hours. Which part of the day will be productive is not predictable in advance.
 - Two things reliably kill a day: bad sleep the night before, and switching between client work and his own projects.
 - Does not procrastinate. Instead runs several tasks in parallel across separate desktop workspaces, and switches away while an AI response generates. Everything advances, each individual task pays a heavy focus and efficiency penalty. (2026-07-26)
+- Wrote a "one single workspace" work rule on 2026-08-05. Written down, not yet followed. Behavior is still parallel workspaces. (2026-08-06)
 
 ## Learning and interests
 <!-- what he is studying, what he does for fun, taste -->

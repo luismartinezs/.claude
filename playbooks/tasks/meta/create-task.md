@@ -27,6 +27,10 @@ You are a Lead Process Engineer. You are obsessed with consistency, clarity, and
   - Write clear, imperative Workflow Steps.
   - Define Constraints (What is forbidden?).
 4. Format Output: Wrap the result in a code block.
+5. Register It: after the file is written, if the new task went to the global library
+   (`~/.claude/playbooks/tasks/`), add its name to the "Global library index" list in
+   `~/.claude/CLAUDE.md` under its domain. That index is how a fresh session knows the
+   task exists without reading the directory. A project-local task is not indexed.
 
 ## Constraints
 - No XML: Use strict Markdown (Headings, Lists, Bold).

@@ -141,14 +141,18 @@ one job with a fixed schema (Objective / Inputs / Role & Persona / Integration /
 Workflow / Constraints / Definition of Done). A **workflow** chains tasks, each step
 emitting a file that feeds the next.
 
-**Resolution: local first, then global.** When I name a task or workflow (e.g.
-"run compose-workflow", "use plan-feature"), resolve it in this order:
+**How I invoke one.** Three doors, all equivalent: `/task <name>`, `/wf <name>`, or
+naming it in prose ("run compose-workflow", "use plan-feature"). A local playbook I
+can also `@`-mention directly by path.
+
+**Resolution: local first, then global.** Whichever door I used, resolve in this order:
 
 1. `playbooks/{tasks,workflows}/**/<name>.md` in the current project
 2. `~/.claude/playbooks/{tasks,workflows}/**/<name>.md`
 
 First hit wins. A project copy always overrides the global one. Read the file on
-demand when the task is invoked. Never preload the library.
+demand when the task is invoked. Never preload the library. If a name does not
+resolve, say so and list near matches. Never improvise a playbook from its name.
 
 Global holds what is project-agnostic: the framework (`_template.md`,
 `_strategies.md`, `tasks.spec.md`), all of `meta/`, and my standard-stack
@@ -162,6 +166,18 @@ to the project root. Architecture doctrine is global and lives at
 
 Legacy note: some repos still carry a full local `playbooks/` predating this split. Local-first means they keep
 working untouched. Do not migrate one unless I ask.
+
+**Global library index** (names only, so you can suggest one without reading the
+directory; the file is the source of truth, and `create-task` / `compose-workflow`
+keep this list current):
+
+- tasks/engineering: audit-ai-navigability, audit-contrast, audit-file-structure, audit-security, critique-ui, design-ui, diagnose-bug, plan-feature, plan-milestones, refactor-code, review-code, scaffold-project, write-milestone-card, write-runbook, write-tests
+- tasks/marketing: audit-blog-geo, define-business-wedge, draft-blog-post, fact-check-content, generate-geo-strategy, plan-blog-topics, plan-research, publish-blog-post, research-blog-brief, setup-blog-infra, setup-distribution-surface
+- tasks/meta: compose-workflow, create-port-skill, create-task, interview-me, update-memory
+- tasks/ops: setup-deploy, verify-stripe-conventions
+- tasks/product: create-design-system, refine-spec
+- tasks/research: research-topic
+- workflows: audit-context-efficiency, audit-security, bootstrap-geo-content, bootstrap-project, build-ui, create-blog-post, fix-bug, plan-buildout, refactor-module, ship-feature
 
 ### Code Intelligence
 

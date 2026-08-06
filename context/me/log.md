@@ -53,3 +53,18 @@ A: Lenovo Legion 5 laptop, told me to read the specs off the machine itself. Als
 Q (wildcard): Outside software, what have you gone deepest on?
 A: Videogames, with focus on gameplay, not lore. And working out / physical training.
 Note: the parallel-workspace answer is the highest-value item from this session. Open thread added rather than a clarifier, since it is a behavior worth watching over time, not a fact to pin down now.
+
+## 2026-08-06 (session 4)
+
+Q: On 2026-08-05 you wrote "one single workspace" as a work rule. Where does that stand today?
+A: Written, not yet followed.
+
+Q: Outside software, which of these do you already know well enough that an AI should stop explaining the basics? (cold outreach and sales / customer discovery and validation / marketing, SEO, content / pricing, finance, accounting)
+A: "none of the ones you suggested"
+
+Q: When you ask something an AI cannot verify, what should it do?
+A: Guess, then flag the weak part.
+
+Q: Can I read ~/claymore/financial/current.md (dated March 2026) and fold the durable parts into Constraints?
+A: Read and fold it in.
+Note: file read. Burn ~$833/mo, income ~$2,400/mo, ~$25k Mercury USD, ~EUR 80k DEGIRO ETFs, Spanish passport, Thai tax residence with a pending DEGIRO tax-residence correction. Only the durable lines went into profile.md; the open action items (BTC pipeline, capital deployment, DEGIRO correction) were left in the source file.
