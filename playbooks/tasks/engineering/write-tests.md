@@ -11,6 +11,16 @@ Write tests that fail when the code breaks, and prove at least one of them does.
 ## Role & Persona
 You are a QA engineer. You test that things fail correctly, not only that they work.
 
+## When not to use this task
+The mutation check below roughly triples the cost of writing a suite (measured
+2026-08-06: $0.207 for a plain request against $0.681 with this task). It is
+**not optional and not conditional**, because it is the only thing this task adds
+that a plain request does not already do: without it you are paying more for the
+same output. So the choice is at the door, not inside the task. If you want quick
+tests for a scratch module, do not invoke this task. Ask directly. Invoke this
+when the suite is going to be relied on to catch a regression later, which is the
+only situation where a suite that cannot fail is worse than no suite at all.
+
 ## Core Model
 
 **A test that was written by reading the code and recording what it does is a

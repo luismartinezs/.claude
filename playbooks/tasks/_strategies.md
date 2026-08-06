@@ -143,11 +143,41 @@ without a test that shows a difference.
 | The Explorer (3 approaches, pros/cons) | Untested. Kept out until measured, since it reads as describe-thinking. Re-add with evidence. |
 | The Architect (atomic decomposition) | Folded into The Ratchet, which carries the same decomposition plus the check that makes it observable. |
 
-**Migration status, as of 2026-08-06.** Retiring a block here does not edit the
-tasks that already inlined it, because tasks are self-contained by design. Three
-tasks were rewritten against this doctrine and measured (`review-code`,
-`write-tests`, `diagnose-bug`). Roughly 15 others still carry retired blocks
-inline, most of them the `audit-*` family, which is built almost entirely from
-Historian, Red Team and Quantifier and should therefore behave like the old
-`review-code` (no additional findings, 61% to 153% more cost). Rewrite them when
-you next touch one; do not batch-edit them unmeasured.
+## Migration status, as of 2026-08-06
+
+Retiring a block here does not edit the tasks that already inlined it, because
+tasks are self-contained by design.
+
+**Done and measured:** `engineering/review-code.md`, `engineering/write-tests.md`,
+`engineering/diagnose-bug.md`.
+
+**Policy for the remaining 12: rewrite one only when you next use it. Do not
+batch-edit them.** The reason is evidence, not caution. The `review-code` rewrite
+was done carefully by someone holding all of this doctrine, and it still shipped
+two regressions (it demoted a real Critical for lack of a proof-of-concept, and
+its mock harness hid a defect that four cheaper runs had caught). Both were only
+found by re-running the fixture. Twelve unmeasured rewrites would be that same
+mistake twelve times over. Each rewrite needs a fixture and a re-run to be worth
+making, and that only happens when you have a real reason to open the file.
+
+The 12, with what each still carries and how likely it is to survive contact with
+section 2 of `tasks.spec.md`:
+
+| Task | Retired blocks inlined | Signal |
+|---|---|---|
+| `engineering/audit-security.md` | Narrator, Quantifier, Scout | **Rewrite first.** 2 commanded actions, no external doctrine. This is the old `review-code` profile almost exactly. |
+| `engineering/plan-feature.md` | Architect, Explorer, Narrator | **Rewrite second.** 1 commanded action, no external doctrine. |
+| `engineering/critique-ui.md` | Quantifier, Red Team, Scout | Leans on `_design-principles.md`, which is real domain knowledge and belongs in a `## Core Model`. |
+| `engineering/design-ui.md` | Historian, Quantifier, Scout | Same as above. |
+| `product/create-design-system.md` | Narrator | 3 commanded actions; check whether the domain content justifies it. |
+| `engineering/plan-milestones.md` | Architect | Cites `vertical-slice-architecture.md`. |
+| `engineering/audit-ai-navigability.md` | Narrator, Scout | Cites `vertical-slice-architecture.md`, 6 commanded actions. |
+| `engineering/refactor-code.md` | Architect, Historian | 7 commanded actions. |
+| `engineering/audit-file-structure.md` | Narrator, Scout | Cites `vertical-slice-architecture.md`, 8 commanded actions. |
+| `engineering/scaffold-project.md` | Architect, Scout | Cites `vertical-slice-architecture.md`, 8 commanded actions. |
+| `ops/setup-deploy.md` | Scout | 11 commanded actions. Likely fine; drop the Scout block and move on. |
+| `engineering/audit-contrast.md` | Red Team, Scout | 18 commanded actions, contrast ratios are computable. Likely the healthiest in the list. |
+
+None of the 12 has a `## Core Model`. That is the first thing to write when you
+rewrite one, and if you cannot fill it and cannot name a commanded action, delete
+the task rather than rewriting it.
