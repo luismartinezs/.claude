@@ -71,6 +71,20 @@ Prompts reference the card, never the spec. That is what keeps them short. `Impl
 > `Then stop.` is load-bearing. It keeps the agent from rolling into the next
 > milestone in a context that is now full of this one.
 
+> **PROTOCOL: The Rung Opens With A Timestamp**
+> The card's Cost table records how long the milestone took, and a session cannot
+> work that out at the end because it never knew when it began. Wall clock is the
+> only number in that table which cannot be recovered afterwards, so one command
+> goes first, where the session has nothing else to do. Every rung's prompt opens
+> with this line, verbatim:
+>
+> ```
+> First run `date -Iseconds` and keep the value for closeout.
+> ```
+>
+> Nothing else about the Cost table belongs in the prompt. The card already carries
+> the empty table, so the closing session fills what it can see.
+
 Session 0 is the exception: it runs in whatever session already has the plan loaded, since re-loading the plan into a fresh session is pure waste.
 
 ### 4. Write the derail procedure
@@ -108,7 +122,7 @@ A short list of things that look like optimizations and are not, for this projec
 Every prompt in the file must be pasteable with zero edits. Read each one and ask whether it would work verbatim in a fresh session that has read nothing.
 
 ## Constraints (Local Rules)
-- **Every rung's prompt ends with the closeout line and then `No commits.`** No exceptions, including Session 0. A rung that ends at "Then clear." leaks the card's Notes.
+- **Every rung's prompt opens with the `date -Iseconds` line and ends with the closeout line and then `No commits.`** No exceptions, including Session 0. A rung that ends at "Then clear." leaks the card's Notes, and a rung that skips the timestamp leaves the Cost table's wall clock unrecoverable.
 - Prompts are literal and complete. No `{placeholders}` the operator must fill in, except a milestone id where the same prompt repeats.
 - No prompt sends the agent to `docs/spec.md`. If a prompt needs the spec, the card is incomplete and that is the finding to report.
 - The check on each rung is the operator's, not the agent's. Say what the human looks at.
@@ -148,6 +162,7 @@ Copy the prompt, run it, check the signal, clear.
 {Any preconditions.}
 
 ```
+First run `date -Iseconds` and keep the value for closeout.
 {literal prompt}
 When the done-condition is met, close out docs/milestones/M{n}.md: measured
 results next to the targets, what landed, and append to Notes what the plan or
@@ -162,6 +177,7 @@ No commits.
 ### Sessions {n} onward
 
 ```
+First run `date -Iseconds` and keep the value for closeout.
 Implement M{n} per docs/milestones/M{n}.md.
 When the done-condition is met, close out docs/milestones/M{n}.md: measured
 results next to the targets, what landed, and append to Notes what the plan or
@@ -190,7 +206,7 @@ No commits.
 ```
 
 ### Quality Checklist
-- [ ] Every prompt is literal, complete, carries the closeout line, and ends in `No commits.`
+- [ ] Every prompt is literal, complete, opens with the `date -Iseconds` line, carries the closeout line, and ends in `No commits.`
 - [ ] No prompt references the spec
 - [ ] Every rung has a human check drawn from a card's done-condition
 - [ ] Session boundaries are justified by which files need to be open

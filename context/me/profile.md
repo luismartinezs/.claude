@@ -3,14 +3,14 @@
 <!-- Maintained by the `interview-me` task. Seeded 2026-07-26 from CLAUDE.md; everything below the seed comes from interviews. -->
 
 ## Identity
-- Name: Luis Martinez. Email: gafaii@gmail.com.
+- Name: Luis Martinez. Email: appforgelabsllc@gmail.com.
 - Based in Chiang Mai, Thailand. Timezone Asia/Bangkok.
 
 ## Work and business
 - Solo technical founder. Works with AI agents as the engineering team.
 - Effectively full time on his own projects, 40+ hours per week. (2026-07-26)
 - Most freelance income comes from one client, LENZ, on a fixed biweekly retainer that costs about 1 hour per week. Income is concentrated, time cost is near zero. (2026-07-26)
-- The LENZ retainer has run 10 months. Client runway and product status look healthy. He expects the same contract to still be in place a year out. (2026-07-26)
+- The LENZ retainer has run since 2025-09. Client runway and product status look healthy. He expects the same contract to still be in place a year out. (2026-07-26)
 - No go-to-market method is off the table. Cold outreach, support-heavy consumer products, building an audience in public, and selling to a few big clients are all acceptable.
 
 ## Current focus

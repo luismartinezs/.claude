@@ -30,20 +30,25 @@ You are:
 3. **State the trap.** Every milestone that is hard is hard for a specific reason, and it is usually one thing that looks fine and is not. Name it, with the mechanism, before anyone writes code. If the trap lives in a foreign repo, quote the relevant constant or function by file and name.
 4. **Write the metric target table.** One row per measurable, with the target and, in a second column, **what that number proves**. The second column is the load-bearing one, because it is what lets a session decide whether a number that missed target matters.
 5. **Build order, if the milestone has one.** Numbered, shortest first where possible, so a session that runs out of room has landed something.
-6. **Open the Notes section** with the placeholder line and nothing else.
+6. **Open the Notes section** with the placeholder line and nothing else, and the **Cost** table with its four headers and empty cells. Both are filled at closeout. A section the card does not carry is a section the closing session does not know to write.
 
 ### Mode: closeout (after the milestone lands, or after it derails)
 
 7. **Stamp the status.** `**Status: done ({date}).**` on line 2, or leave it absent if the milestone derailed.
 8. **Fill the results column.** Add measured values next to the targets. Where a target was missed, say the number and say whether it matters.
-9. **Write what landed.** A short table of file and what it does. This replaces a session having to grep for its own predecessor's work.
-10. **Append to Notes, in priority order:**
+9. **Fill the Cost table.** Four numbers, each one observed by this session rather than reconstructed:
+    - **Wall clock**, in minutes: the difference between the timestamp this session took as its first action and `date -Iseconds` run now.
+    - **Verify runs**: how many times the check command was run before the done-condition passed, counting the runs that failed.
+    - **Verify duration**, in seconds: how long a single run of that command takes. Time one run at closeout if nobody measured it during the work.
+    - **Restarts**: the number of derail entries already in Notes, plus this session if it is closing out a derail. Zero for a milestone that landed on the first attempt.
+10. **Write what landed.** A short table of file and what it does. This replaces a session having to grep for its own predecessor's work.
+11. **Append to Notes, in priority order:**
     - **What was wrong in the plan or the spec.** The corpus was not what it claimed, the assumed API does not behave that way, the milestone's own done-condition could not be satisfied as written. This is the highest-value line on the card.
     - **Bugs that the assertions caught**, with the mechanism. "It failed because clamping bends hue at the gamut wall" saves the next session the entire debugging session.
     - **Dead ends.** What was tried, why it does not work, so nobody tries it again.
     - **Environment gotchas.** Tooling that lies, watchers that do not fire, commands that report the wrong exit code.
     - **Deliberate limits.** Things left alone on purpose, with the reason, so they do not read as oversights.
-11. **Point forward.** Anything this milestone discovered that changes a later card, said in one line, in the later card too.
+12. **Point forward.** Anything this milestone discovered that changes a later card, said in one line, in the later card too.
 
 ### Derail mode (a special case of closeout)
 
@@ -55,6 +60,7 @@ When a session is two or three failed attempts deep on the same problem, run **c
 - Numbers, not adjectives. "Fast" is not a target, "under 40ms" is.
 - In `closeout`, a missed target is stated as missed. Never quietly restate the target as whatever was achieved.
 - The Notes section is append-only. Never delete a previous session's dead end because it looks resolved.
+- **Cost numbers are observed, never estimated.** Write `not recorded` for any number this session did not actually see. The table exists to decide which speed fix is worth making, and a single invented duration points that decision at the wrong fix.
 - Do not commit.
 
 ## Definition of Done
@@ -95,6 +101,15 @@ Omit if there genuinely is not one.}
 |---|---|---|
 | {measurable} | {number} | {measured} |
 
+## Cost
+
+{Author mode writes the headers and empty cells. Closeout fills them. This measures
+the build procedure, not the product. `not recorded` where a number was not seen.}
+
+| Wall clock | Verify runs | Verify duration | Restarts |
+|---|---|---|---|
+| {min} | {count} | {sec} | {count} |
+
 ## What landed
 
 {Closeout only.}
@@ -116,6 +131,7 @@ _(Append failures and dead ends here before clearing a derailed session.)_
 - [ ] Every metric row says what the number proves, not just the number
 - [ ] The trap, if there is one, names a file and a constant
 - [ ] Closeout states measured values including the ones that missed
+- [ ] The Cost table carries four numbers, each observed, or `not recorded`
 - [ ] Notes lead with what the plan or spec got wrong
 - [ ] Notes are appended, never rewritten
 - [ ] Author mode lands around 40 to 60 lines
