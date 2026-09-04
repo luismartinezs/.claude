@@ -1,0 +1,15 @@
+{
+  "name": "orchestrator",
+  "private": true,
+  "type": "module",
+  "description": "Runs a plan-buildout ladder unattended: one fresh Claude Code session per rung, an independent check, a commit on green.",
+  "scripts": {
+    "orchestrator": "bun src/run.ts"
+  },
+  "dependencies": {
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.0"
+  }
+}

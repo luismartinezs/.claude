@@ -1,7 +1,7 @@
 # TASK: Write Runbook
 
 ## Objective
-Produce `docs/runbook.md`: the operator's execution procedure for `docs/plan.md`. A session ladder with copy-pasteable prompts, an explicit rule for when to clear context, and the recovery procedure for a derailed session.
+Produce `docs/runbook.md`, the operator's execution procedure for `docs/plan.md`, and `docs/ladder.json`, the same ladder in the form the orchestrator runs. A session ladder with copy-pasteable prompts, an explicit rule for when to clear context, and the recovery procedure for a derailed session.
 
 ## Inputs
 - Primary: `docs/plan.md` (Required)
@@ -84,6 +84,10 @@ Prompts reference the card, never the spec. That is what keeps them short. `Impl
 >
 > Nothing else about the Cost table belongs in the prompt. The card already carries
 > the empty table, so the closing session fills what it can see.
+>
+> This applies to `docs/runbook.md`, whose prompts a human pastes. It does not
+> apply to `docs/ladder.json`: the orchestrator times the process itself, so a
+> rung that runs under it records wall clock whether or not anyone asked.
 
 Session 0 is the exception: it runs in whatever session already has the plan loaded, since re-loading the plan into a fresh session is pure waste.
 
@@ -117,12 +121,62 @@ Only rules that apply to every session, each with its reason in the same line. A
 
 A short list of things that look like optimizations and are not, for this project. Subagent fan-out is almost always on it: it optimizes wall-clock and costs more tokens, because each agent re-grounds independently. Name the exception if there is one. `/compact` at a milestone boundary belongs here too.
 
-### 8. Verify
+### 8. Emit the machine twin
+
+The runbook is for you. `docs/ladder.json` is the same ladder for
+`~/.claude/orchestrator`, written in the same pass so the two cannot drift. Same
+rung ids, same order, same checks.
+
+```json
+{
+  "project": "{name}",
+  "branch": "build/{name}",
+  "push": true,
+  "budgetUsd": { "total": 200 },
+  "rungs": [
+    {
+      "id": "S0",
+      "name": "scaffold",
+      "milestones": ["M0"],
+      "prompt": "Implement M0 per docs/milestones/M0.md. Tests first.",
+      "oracle": { "kind": "command", "run": "bun run verify:scaffold" }
+    },
+    {
+      "id": "S6",
+      "name": "console shell",
+      "milestones": ["M14", "M15"],
+      "prompt": "Implement M14 and M15 per their cards.",
+      "oracle": {
+        "kind": "human",
+        "ask": "Open the console and judge whether the density reads calm or cramped.",
+        "artifact": "docs/measurements/console.png"
+      }
+    }
+  ]
+}
+```
+
+Two rules for a rung's `prompt`, and together they are why it is one line:
+
+- **It carries the work line only.** The orchestrator appends the closeout
+  instruction, the "do not read the spec" line and the commit policy to every
+  rung it runs. They cannot then be dropped from one rung by accident.
+- **No timestamp line and no `No commits.`** The orchestrator handles both.
+
+Every `command` oracle must **assert and exit non-zero**. A check that prints a
+number for a human to read is a report, not an oracle: `verify:session` has to
+fail by itself when the count is not 3. A rung whose check cannot be written
+that way gets a `human` oracle instead, and that is the honest answer, not a
+defeat. Say which you chose, and why, in the runbook prose.
+
+### 9. Verify
 
 Every prompt in the file must be pasteable with zero edits. Read each one and ask whether it would work verbatim in a fresh session that has read nothing.
 
 ## Constraints (Local Rules)
-- **Every rung's prompt opens with the `date -Iseconds` line and ends with the closeout line and then `No commits.`** No exceptions, including Session 0. A rung that ends at "Then clear." leaks the card's Notes, and a rung that skips the timestamp leaves the Cost table's wall clock unrecoverable.
+- **Every rung's prompt in `docs/runbook.md` opens with the `date -Iseconds` line and ends with the closeout line and then `No commits.`** No exceptions, including Session 0. A rung that ends at "Then clear." leaks the card's Notes, and a rung that skips the timestamp leaves the Cost table's wall clock unrecoverable.
+- **`docs/ladder.json` is emitted in the same pass, with the same rungs in the same order.** A rung in one file and not the other is a bug, and the ladder is the one that will actually run.
+- **Every `command` oracle in the ladder asserts.** If the only way to know the milestone landed is a human reading a number, its oracle is `human`.
 - Prompts are literal and complete. No `{placeholders}` the operator must fill in, except a milestone id where the same prompt repeats.
 - No prompt sends the agent to `docs/spec.md`. If a prompt needs the spec, the card is incomplete and that is the finding to report.
 - The check on each rung is the operator's, not the agent's. Say what the human looks at.
@@ -214,6 +268,9 @@ No commits.
 - [ ] No rung points at a milestone card that does not exist yet; the rung before the boundary authors the next one
 - [ ] The derail procedure has a stated trigger count and a literal prompt
 - [ ] "What does not help" is present and specific to this project
+- [ ] `docs/ladder.json` parses, and its rungs match the runbook's in id and order
+- [ ] Every command oracle exits non-zero when its milestone is not met
+- [ ] Ladder prompts carry the work line only, no timestamp and no commit policy
 - [ ] Under 200 lines
 
 ---

@@ -21,4 +21,11 @@
 !context/**
 !playbooks/
 !playbooks/**
+!orchestrator/
+!orchestrator/**
+orchestrator/node_modules/
+orchestrator/*.log
+# Chrome's profile for the app window. It lives in ~/.cache now, but Chrome
+# recreates the old path if it was already running, so keep it named here.
+orchestrator/.window/
 !CLAUDE.md

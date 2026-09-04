@@ -34,9 +34,12 @@ You strictly adhere to the patterns defined in `CLAUDE.md`.
 >    sound, an API response, a layout, a feel).
 > 2. For each, ask: **can a script decide whether it is correct?**
 > 3. Split the list into two piles: **mechanically checkable** and **needs a human eye**.
-> 4. For the checkable pile, name the actual measurement. Not "tests pass" if
->    something sharper exists. A measurement that is near-constant when correct and
->    blows up when wrong is worth more than ten assertions.
+> 4. For the checkable pile, name the actual measurement, and name the command
+>    that **asserts** it. Not "tests pass" if something sharper exists. A
+>    measurement that is near-constant when correct and blows up when wrong is
+>    worth more than ten assertions. A command that prints the number for a human
+>    to read is a report; a command that exits non-zero when the number is wrong
+>    is an oracle, and only the second kind can run unattended.
 > 5. For the human pile, do not invent a metric. Mark it and move on.
 
 State both piles explicitly in the plan. This section is the reason the rest of the plan is shaped the way it is, so it goes near the top and it is short.
@@ -56,7 +59,7 @@ If the direct import cannot work, the plan says so and stops. It does not plan a
 
 Order the milestones so that:
 
-- **M0 is always scaffold.** Directory structure, package scripts, the whole data model in one schema file, empty modules with real signatures, CLI or entry-point dispatch, one trivial test. Nothing in M0 has behavior. Its purpose is that every later session can read signatures instead of inventing them.
+- **M0 is always scaffold.** Directory structure, package scripts, the whole data model in one schema file, empty modules with real signatures, CLI or entry-point dispatch, one trivial test, and the `verify:*` harness every later milestone's check hangs off. **Every one of those verify scripts ships failing**, asserting against behaviour that does not exist yet. A harness of stubs that all exit 0 is worse than no harness, because every later milestone then passes its check the moment it is asked. Nothing in M0 has behavior. Its purpose is that every later session can read signatures instead of inventing them.
 - **The unblocking milestone comes early.** Whichever milestone produces the input that every other milestone consumes goes first after scaffold, even if it is the hardest.
 - **Mechanically checkable work comes before human-judgment work.** Everything in the checkable pile should land before the first milestone in the human pile, because the checkable work can run in long unattended sessions and the other cannot.
 - **Each milestone fits one to two sessions.** If closing it needs three different areas of the codebase open at once, split it.
@@ -66,7 +69,15 @@ Order the milestones so that:
 
 Every milestone gets a single sentence that is either true or false, checkable by running one command. "Ingest works" is not a done-condition. "Each sheet in `<dir>` reports a plausible native resolution and `driftRatio` is within 2% of 1.0" is.
 
-If you cannot write that sentence, the milestone is not defined yet. Say so.
+**The command must decide, not report.** Write the check so it exits non-zero
+when the sentence is false. `bun run verify:drift` printing `driftRatio 1.004`
+still needs a human; `bun run verify:drift` failing when the ratio leaves 2% does
+not, and that is the difference between a milestone that can run overnight and
+one that cannot.
+
+If you cannot write that sentence, the milestone is not defined yet. Say so. If
+you can write the sentence but no command can settle it, that milestone belongs
+in the human pile, and saying so is the honest answer rather than a failure.
 
 ### 5. Mark the taste boundary
 
@@ -79,7 +90,8 @@ Re-read the plan and check every constraint below. Then report the milestone cou
 ## Constraints (Local Rules)
 - **Never plan a commit.** Committing is the operator's call, always.
 - No milestone may depend on the agent reading back an image, a rendering, or a binary it just produced in order to check its own work.
-- Every milestone names its check. A milestone with no check is a wish.
+- **No two milestones share a check command.** If M9 and M10 run the same command, neither one can close its own milestone, and an unattended run cannot tell a half-finished M10 from a finished one. Put whatever distinguishes them into the command itself.
+- Every milestone names its check, and the check exits non-zero when the milestone is not met. A milestone with no check is a wish, and a check that only prints is a wish with extra steps.
 - Do not invent a metric for something that is taste. An invented metric is worse than an honest "you have to look at this", because it converges on the wrong thing confidently.
 - The plan describes what and in what order. It does not contain implementation. Implementation detail belongs in the milestone cards.
 - Prefer fewer, larger milestones over many small ones. Session setup cost is real.
@@ -112,13 +124,13 @@ Companion to `docs/spec.md`. Written {date}.
 ### M0 — scaffold
 **Done when:** {one checkable sentence}
 **Contains:** {bullets}
-**Check:** {the command to run}
+**Check:** {the command to run, which exits non-zero when this is not done}
 
 ### M1 — {name}
 **Done when:** {one checkable sentence}
 **Why here:** {what it unblocks}
 **Contains:** {bullets}
-**Check:** {the command, and the number to look at}
+**Check:** {the command, which exits non-zero when this is not done, and the number to look at}
 
 {... one block per milestone ...}
 
@@ -135,6 +147,7 @@ From **M{n}** on, the done-condition is your judgment and no metric replaces it.
 ### Quality Checklist
 - [ ] The verification bottleneck is named before any milestone is
 - [ ] Every milestone has a done-condition that is one command away from true or false
+- [ ] Every mechanical check asserts, so its exit code is the verdict
 - [ ] The unblocking milestone is early, even if it is hard
 - [ ] The taste boundary is explicit and has its own protocol
 - [ ] No milestone requires the agent to look at its own output to judge it

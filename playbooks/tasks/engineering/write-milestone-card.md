@@ -36,7 +36,7 @@ You are:
 
 7. **Stamp the status.** `**Status: done ({date}).**` on line 2, or leave it absent if the milestone derailed.
 8. **Fill the results column.** Add measured values next to the targets. Where a target was missed, say the number and say whether it matters.
-9. **Fill the Cost table.** Four numbers, each one observed by this session rather than reconstructed:
+9. **Fill the Cost table.** Four numbers, each one observed rather than reconstructed. **If the row already carries numbers, the orchestrator ran this milestone and wrote them. Leave them alone.** Otherwise:
     - **Wall clock**, in minutes: the difference between the timestamp this session took as its first action and `date -Iseconds` run now.
     - **Verify runs**: how many times the check command was run before the done-condition passed, counting the runs that failed.
     - **Verify duration**, in seconds: how long a single run of that command takes. Time one run at closeout if nobody measured it during the work.
@@ -60,7 +60,7 @@ When a session is two or three failed attempts deep on the same problem, run **c
 - Numbers, not adjectives. "Fast" is not a target, "under 40ms" is.
 - In `closeout`, a missed target is stated as missed. Never quietly restate the target as whatever was achieved.
 - The Notes section is append-only. Never delete a previous session's dead end because it looks resolved.
-- **Cost numbers are observed, never estimated.** Write `not recorded` for any number this session did not actually see. The table exists to decide which speed fix is worth making, and a single invented duration points that decision at the wrong fix.
+- **Cost numbers are observed, never estimated.** Write `not recorded` for any number this session did not actually see, and never overwrite a row the orchestrator already filled. The table exists to decide which speed fix is worth making, and a single invented duration points that decision at the wrong fix.
 - Do not commit.
 
 ## Definition of Done

@@ -48,7 +48,7 @@ keep this list current):
 - tasks/marketing: audit-blog-geo, define-business-wedge, draft-blog-post, fact-check-content, generate-geo-strategy, plan-blog-topics, plan-research, publish-blog-post, research-blog-brief, restyle-text, setup-blog-infra, setup-distribution-surface
 - tasks/meta: compose-workflow, create-port-skill, create-task, interview-me, update-memory
 - tasks/ops: setup-deploy, verify-stripe-conventions
-- tasks/product: create-design-system, refine-spec
+- tasks/product: create-design-system, refine-spec, route-decisions
 - tasks/research: research-topic
 - workflows: audit-context-efficiency, audit-security, bootstrap-geo-content, bootstrap-project, build-ui, create-blog-post, fix-bug, plan-buildout, refactor-module, ship-feature
 
