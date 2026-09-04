@@ -218,9 +218,16 @@ const fixCheckPrompt = (rungId: string, check: string, milestones: string[]) =>
     `on the current tree, and pass only once the milestone lands. Usually that`,
     `means the verify script asserts against real behaviour instead of existing.`,
     "",
-    `Edit the script and, if its command needs to change, docs/ladder.json and`,
-    `docs/plan.md so all three agree. Run the check and show me that it fails.`,
-    `Do not implement the milestone itself. Do not commit.`,
+    `Then do the same for every other verify script that is still a stub. They`,
+    `were all scaffolded together, so they will all fail this way one rung at a`,
+    `time, and fixing them one at a time wastes a stop for each. Each script`,
+    `asserts what its own milestone's card says it delivers, and each must fail`,
+    `on today's tree.`,
+    "",
+    `Edit the scripts and, where a command needs to change, docs/ladder.json and`,
+    `docs/plan.md so all three agree. Then run every check in the ladder and show`,
+    `me which now fail, which should be all of them except the milestones already`,
+    `built. Do not implement any milestone. Do not commit.`,
   ].join("\n");
 
 const cli = async (dir: string, args: string[]) => {
