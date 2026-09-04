@@ -47,6 +47,11 @@ import { basename } from "node:path";
 
 const EXIT = { done: 0, error: 1, parked: 10 } as const;
 
+// Claude saying "come back later" reads like an error but means nothing about
+// the work. It has to be told apart from a session that actually broke.
+const isUsageLimit = (error?: string) =>
+  /usage limit|session limit|rate limit|resets? \d|too many requests/i.test(error ?? "");
+
 const now = () => new Date().toISOString();
 const log = (...parts: unknown[]) => console.log(...parts);
 const money = (n: number) => `$${n.toFixed(2)}`;
@@ -284,6 +289,23 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
           rungId: rung.id,
           message: asked.split("\n")[0] ?? "The session raised a question.",
           detail: [asked, "", `Answer it in the session: ${door(dir, s) ?? "no session id"}`].join("\n"),
+          at: now(),
+        });
+      }
+
+      // Hitting the plan's usage limit is not the rung failing, and burning an
+      // attempt on it would spend the whole budget waiting for a clock. Give
+      // the attempt back and park until the limit resets.
+      if (!r.ok && isUsageLimit(r.error)) {
+        s.attempts -= 1;
+        s.status = "paused";
+        setRung(state, rung.id, s);
+        await resetWorktree(dir);
+        return parkAt(dir, ladder, state, {
+          kind: "budget",
+          rungId: rung.id,
+          message: "Out of Claude usage for now. It carries on once the limit resets.",
+          detail: r.error ?? "",
           at: now(),
         });
       }

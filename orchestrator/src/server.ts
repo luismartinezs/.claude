@@ -157,6 +157,16 @@ setInterval(() => {
         continue;
       }
 
+      // Waiting on a usage limit resolves itself. Try again every ten minutes
+      // rather than making Luis notice the clock.
+      if (st.park?.kind === "budget" && st.park.message.startsWith("Out of Claude usage")) {
+        if (Date.now() - Date.parse(st.park.at) < 600_000) continue;
+        lastAuto.set(dir, Date.now());
+        logs.set(dir, [...lines(dir), "\ntrying again now the limit may have reset\n"]);
+        start(dir);
+        continue;
+      }
+
       if (st.park !== null) continue;
       lastAuto.set(dir, Date.now());
       logs.set(dir, [...lines(dir), "\ncarrying on\n"]);

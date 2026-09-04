@@ -21,6 +21,8 @@
 !context/**
 !playbooks/
 !playbooks/**
+!scripts/
+!scripts/**
 !orchestrator/
 !orchestrator/**
 orchestrator/node_modules/
@@ -29,3 +31,4 @@ orchestrator/*.log
 # recreates the old path if it was already running, so keep it named here.
 orchestrator/.window/
 !CLAUDE.md
+!statusline.sh
