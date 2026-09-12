@@ -36,6 +36,11 @@ export const Rung = z.object({
   // interactive hands you the session itself and waits, for work that is a
   // conversation rather than a task.
   mode: z.enum(["auto", "interactive"]).default("auto"),
+  // build implements a milestone and answers to its card. meta produces one of
+  // the documents the build runs on: the spec, the plan, the next card, the
+  // next rung. A meta rung has no card to read and none to close out, and
+  // telling it to close one out is a contradiction it spends a turn resolving.
+  kind: z.enum(["build", "meta"]).default("build"),
   // For an interactive rung: what the conversation is for, in one line, shown
   // wherever Luis is asked to have it.
   converse: z.string().optional(),
@@ -99,6 +104,12 @@ export const State = z.object({
   rungs: z.record(z.string(), RungState).default({}),
   verdicts: z.record(z.string(), Verdict).default({}),
   park: Park.nullable().default(null),
+  // Every milestone docs/plan.md names, re-read at the top of every run. The
+  // ladder covers a prefix of this and grows, so it takes both to say whether
+  // the project is finished. Kept here so the app can tell you the ladder is
+  // not the plan without parsing the plan itself.
+  plan: z.array(z.string()).default([]),
+  // The plan is exhausted, not just the ladder.
   done: z.boolean().default(false),
 });
 

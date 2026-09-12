@@ -7,21 +7,39 @@ import { cardPath, type Rung } from "./schema";
 
 const cards = (rung: Rung) => rung.milestones.map(cardPath).join(", ");
 
+// A build rung owes its card a closeout. A meta rung is writing a document and
+// has no card of its own, so it gets the mailbox and the commit policy and
+// nothing about Notes.
 const closeout = (rung: Rung) => {
   const which = rung.milestones.length === 1 ? cards(rung) : `each of ${cards(rung)}`;
+  const opening =
+    rung.kind === "meta"
+      ? [
+          `Write the file this rung is for, and nothing else. Do not implement a`,
+          `milestone and do not touch code that a milestone owns.`,
+          ``,
+        ]
+      : [
+          `When the done-condition is met, close out ${which}: measured results next to`,
+          `the targets, what landed, and append to Notes what the plan or the spec got`,
+          `wrong. Then stop.`,
+          ``,
+          `If you cannot meet the done-condition, append to Notes what you tried and why`,
+          `it failed, then stop without further attempts. A recorded dead end is worth`,
+          `more than another guess.`,
+          ``,
+        ];
   return [
-    `When the done-condition is met, close out ${which}: measured results next to`,
-    `the targets, what landed, and append to Notes what the plan or the spec got`,
-    `wrong. Then stop.`,
-    ``,
-    `If you cannot meet the done-condition, append to Notes what you tried and why`,
-    `it failed, then stop without further attempts. A recorded dead end is worth`,
-    `more than another guess.`,
-    ``,
-    `If you hit a decision this card cannot settle, one that changes what the`,
+    ...opening,
+    `If you hit a decision ${rung.kind === "meta" ? "this rung" : "this card"} cannot settle, one that changes what the`,
     `product is rather than how it is built, do not guess. Write the question to`,
     `docs/.orchestrator-question.md with the options and your recommendation, and`,
     `stop. Luis will reopen this session and answer you in it.`,
+    ``,
+    `That file is a mailbox, not a log. Write it only to ask a question that is`,
+    `live right now. Never write an answered question back to it, for the record`,
+    `or for any other reason: anything sitting in it stops the build. The record`,
+    `of a settled question belongs in ${rung.kind === "meta" ? "the document you are writing" : "the milestone card"}.`,
     ``,
     `Do not commit and do not push. The orchestrator verifies your work with its`,
     `own check and commits only if that check passes.`,
@@ -31,11 +49,14 @@ const closeout = (rung: Rung) => {
 export const workPrompt = (rung: Rung, attempt: number, lastFailure?: string): string => {
   const parts: string[] = [rung.prompt.trim(), ""];
 
-  parts.push(
-    `Read ${cards(rung)} for the full brief. Everything you need is in the card;`,
-    `do not read docs/spec.md.`,
-    "",
-  );
+  // A meta rung has no card. Pointing it at one that does not exist is how a
+  // session spends its first turns working out that the instruction is wrong.
+  if (rung.kind === "build")
+    parts.push(
+      `Read ${cards(rung)} for the full brief. Everything you need is in the card;`,
+      `do not read docs/spec.md.`,
+      "",
+    );
 
   if (attempt > 1 && lastFailure) {
     parts.push(

@@ -23,6 +23,14 @@ there it builds, and you are not involved again unless it asks.
 In a project that already has `docs/ladder.json` it skips straight to building.
 Interrupt it whenever; `build` again picks up where it stopped.
 
+The ladder it starts with is not the whole job. Cards past the taste boundary
+are written when their milestone arrives, because each milestone teaches the
+next one what its card should say, so `docs/ladder.json` covers a prefix of
+`docs/plan.md` and grows. When the rungs run out, `build` asks the plan whether
+anything is left. If something is, it writes that milestone's card, puts its
+rung on the ladder and carries on. It says complete only when the plan has
+nothing left in it.
+
 The other three commands exist for the moments it asks you something:
 
 ```
@@ -44,6 +52,7 @@ build reset S4
 | P3 | cards | on its own |
 | P4 | runbook and ladder | on its own |
 | S0..Sn | the build | on its own, until it asks |
+| X\<M> | the next card and its rung | on its own, whenever the rungs run out before the plan does |
 
 Exit codes: `0` complete, `10` waiting on you, `1` it could not proceed.
 
@@ -70,6 +79,39 @@ Everything else it handles alone. A first or second failed attempt is not a ping
 - **It refuses to start on a dirty tree.**
 - **The check runs before the work too**, and has to fail. A check that is green
   before anything is built would let the ladder march straight past the milestone.
+- **Finishing the rungs is not finishing.** Every milestone `docs/plan.md` names
+  gets a rung before the build is called complete. `X<M>`'s own check asserts
+  both halves of its job: the card exists, and `docs/ladder.json` now has a rung
+  covering that milestone. Three failed attempts at it park like any other rung.
+
+## Tests
+
+```
+bun test
+```
+
+Eleven scenarios, twelve seconds, no tokens. Each one drives the real `run.ts`
+in a real throwaway git repo; the only thing that is not real is the session.
+That substitution is honest rather than convenient, because the orchestrator
+never asks a session whether it is done. It asks a check, in a clean shell,
+and a process that writes the files a real session would have written is
+indistinguishable from one that thought about it first.
+
+`test/fake-claude.ts` is that process. Behaviour comes from a JSON array of
+steps matched against the prompt, so a scenario can make a session build a
+milestone, grow the ladder, raise a question, fail twice and land on the third,
+or hit a usage limit. It lives outside the repo under test, because a failed
+attempt runs `git clean -fd` and a harness inside the working tree would be
+deleted by the very rule it is there to check.
+
+What is covered: planning from an empty repo through both conversations,
+growing the ladder past the taste boundary, a human oracle taking a rejection
+and then a pass, the question mailbox, a derail after three attempts, a check
+that was green before the work, a usage limit giving the attempt back, the
+budget, the refusal to build on `main`, an extension that writes a card but no
+rung, and the app serving what the orchestrator wrote. The first test asserts
+that the shim really does shadow the installed `claude`, so the suite fails
+rather than silently starts spending if it ever stops.
 
 ## Cost
 

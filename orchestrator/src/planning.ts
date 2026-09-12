@@ -6,7 +6,8 @@
 // conversations, so those rungs hand you a real session and wait. Everything
 // between them is mechanical and runs headless.
 
-import { Ladder } from "./schema";
+import { LADDER_PATH, Ladder, cardPath } from "./schema";
+import { PLAN_PATH } from "./plan";
 
 const PLAYBOOKS = `${process.env.HOME}/.claude/playbooks/tasks`;
 
@@ -17,6 +18,8 @@ export const planningLadder = (project: string, branch: string): Ladder =>
     project,
     branch,
     push: false,
+    // Every planning rung writes a document. None of them has a milestone card
+    // to read or to close out, which is what `meta` says.
     rungs: [
       {
         id: "P0",
@@ -119,5 +122,80 @@ export const planningLadder = (project: string, branch: string): Ladder =>
           run: "test -s docs/ladder.json && bun -e 'JSON.parse(await Bun.file(\"docs/ladder.json\").text())'",
         },
       },
+    ].map((rung) => ({ ...rung, kind: "meta" })),
+  });
+
+// --- growing the ladder ----------------------------------------------------
+
+// Built when the rungs run out before the plan does. One session: it writes
+// the next milestone's card, if the rung before it did not, and then puts that
+// milestone on the ladder.
+//
+// A session rather than a regex, because both questions it answers are
+// judgements. Whether the milestone can have a command oracle at all is one.
+// Whether its card puts a human read in the middle, and so needs two rungs
+// rather than one, is the other. Getting either wrong is how a ladder marches
+// past a milestone it never measured.
+export const extendLadder = (base: Ladder, next: string, previous?: string): Ladder => {
+  // The card before this one is where every defect found in the plan so far
+  // was recorded, and it is the reason this card was not written earlier.
+  const evidence = previous
+    ? `   ${cardPath(previous)}, where every defect found in the plan so far`
+    : `   the cards already written, where every defect found so far`;
+
+  return Ladder.parse({
+    ...base,
+    rungs: [
+      {
+        id: `X${next}`,
+        name: `put ${next} on the ladder`,
+        milestones: [next],
+        kind: "meta",
+        prompt: [
+          `${next} is the next milestone in ${PLAN_PATH} and no rung in ${LADDER_PATH}`,
+          `covers it. Put it on the ladder. Do not implement it.`,
+          ``,
+          `1. If ${cardPath(next)} does not exist, author it now, following`,
+          `   ${task("engineering/write-milestone-card.md")}. Its inputs are the`,
+          `   ${next} block in ${PLAN_PATH}, docs/decisions.md, and the Notes of`,
+          evidence,
+          `   was recorded. If the card already exists, the rung before it wrote`,
+          `   it while it still held the evidence. Read it and leave it alone.`,
+          ``,
+          `2. Append the rung, or rungs, for ${next} to ${LADDER_PATH}, and the`,
+          `   matching session to docs/runbook.md so the two cannot drift. Match`,
+          `   the shape of the rungs already there and continue their id series.`,
+          `   Do not touch, reorder or renumber any rung already in the file:`,
+          `   every one of them has been built and tagged, and the ids are in`,
+          `   the git history.`,
+          ``,
+          `One rung, unless the card itself puts a human read in the middle of the`,
+          `milestone. Then it is two, and the split goes exactly where the card`,
+          `puts the read, so that nothing downstream of it is authored before it`,
+          `is approved.`,
+          ``,
+          `The oracle is the honest answer and not the convenient one. A command`,
+          `oracle must exit non-zero when ${next} is not done, and must not be`,
+          `identical to another rung's, or neither rung can tell its own`,
+          `milestone from the other's. If the card's done-condition is Luis's`,
+          `judgement, the oracle is human: its \`ask\` is what he is being asked to`,
+          `look at, in one or two sentences, and its \`artifact\` is the file he`,
+          `opens. A human oracle means the orchestrator never runs a command for`,
+          `this rung, so any mechanical floors the milestone has go in the rung's`,
+          `own prompt instead, as commands the session runs itself before it`,
+          `parks, along with the instruction to form no opinion about the result.`,
+          ``,
+          `Then stop. Writing ${next}'s card and its rung is the whole job.`,
+        ].join("\n"),
+        oracle: {
+          kind: "command",
+          run:
+            `test -s ${cardPath(next)} && bun -e '` +
+            `const l = JSON.parse(await Bun.file("${LADDER_PATH}").text()); ` +
+            `if (!l.rungs.some((r) => r.milestones.includes("${next}"))) ` +
+            `{ console.error("no rung covers ${next}"); process.exit(1) }'`,
+        },
+      },
     ],
   });
+};

@@ -6,9 +6,13 @@
 // check, an exit code cannot.
 //
 // Each invocation moves the ladder as far as it can and then exits:
-//   0   ladder complete
+//   0   the plan is built, every milestone in it covered by a green rung
 //   10  parked, waiting on the operator
 //   1   the orchestrator itself could not proceed
+//
+// The ladder is not the job. It covers the milestones whose cards are written,
+// and cards past the taste boundary are written when their milestone arrives.
+// So the loop that runs the rungs sits inside a loop that grows the ladder.
 
 import {
   LADDER_PATH,
@@ -42,7 +46,8 @@ import {
 } from "./exec";
 import { notesPrompt, workPrompt } from "./prompt";
 import { notify, writeCostRow, writeStatus } from "./report";
-import { planningLadder } from "./planning";
+import { extendLadder, planningLadder } from "./planning";
+import { PLAN_PATH, covered, nextMilestone, planMilestones, uncovered } from "./plan";
 import { basename } from "node:path";
 
 const EXIT = { done: 0, error: 1, parked: 10 } as const;
@@ -85,13 +90,17 @@ const landRung = async (
   s: RungState,
   sessionId: string,
 ): Promise<void> => {
-  for (const m of rung.milestones)
-    await writeCostRow(dir, m, {
-      wallMs: s.wallMs,
-      checkRuns: s.checkRuns,
-      checkMs: s.checkMs,
-      restarts: Math.max(0, s.attempts - 1),
-    });
+  // Only a build rung's cost belongs in a card's Cost table. A meta rung wrote
+  // that card; recording its own minutes there would measure the wrong thing
+  // and then be overwritten by the rung that actually builds the milestone.
+  if (rung.kind === "build")
+    for (const m of rung.milestones)
+      await writeCostRow(dir, m, {
+        wallMs: s.wallMs,
+        checkRuns: s.checkRuns,
+        checkMs: s.checkMs,
+        restarts: Math.max(0, s.attempts - 1),
+      });
 
   const verdict =
     rung.oracle.kind === "command"
@@ -148,7 +157,8 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
     const did = await commit(dir, ["."], "changes made outside the run", "");
     if (did) log("picked up work done outside the run and committed it\n");
   }
-  log(`${ladder.project} on ${await currentBranch(dir)}, ${ladder.rungs.length} rungs\n`);
+  const n = ladder.rungs.length;
+  log(`${ladder.project} on ${await currentBranch(dir)}, ${n} rung${n === 1 ? "" : "s"}\n`);
 
   for (const rung of ladder.rungs) {
     const s = rungState(state, rung.id);
@@ -207,6 +217,22 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
       s.status = "pending";
       setRung(state, rung.id, s);
       await resetWorktree(dir);
+    }
+
+    // This rung has already had a session. It may have parked for a question,
+    // or been interrupted, while the work itself landed. Ask the check before
+    // paying for another session, because a check is free and a session is not.
+    if (rung.oracle.kind === "command" && s.attempts > 0) {
+      const again = await sh(rung.oracle.run, dir, rung.oracle.timeoutSec);
+      s.checkRuns += 1;
+      s.checkMs = again.ms;
+      setRung(state, rung.id, s);
+      if (again.code === 0) {
+        log(`  the check passes already, the work is in the tree`);
+        await landRung(dir, ladder, state, rung, s, s.sessions.at(-1) ?? "");
+        continue;
+      }
+      log(`  check still red (exit ${again.code}), running another session`);
     }
 
     // A check that is green before any work has happened is not measuring the
@@ -282,6 +308,11 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
       if (await raised.exists()) {
         const asked = (await raised.text()).trim();
         await raised.delete();
+        // A session that files an already-answered question as a record has not
+        // asked anything, and stopping the build for it wastes a whole stop.
+        if (/^>?\s*\*\*ANSWERED/i.test(asked)) {
+          log(`    a settled question was filed as a record, ignoring it`);
+        } else {
         s.status = "paused";
         setRung(state, rung.id, s);
         return parkAt(dir, ladder, state, {
@@ -291,6 +322,7 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
           detail: [asked, "", `Answer it in the session: ${door(dir, s) ?? "no session id"}`].join("\n"),
           at: now(),
         });
+        }
       }
 
       // Hitting the plan's usage limit is not the rung failing, and burning an
@@ -342,17 +374,21 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
         break;
       }
 
-      // Red. Keep the lesson, drop the code.
+      // Red. Keep the lesson, drop the code. A meta rung has no card to keep it
+      // in, and the next attempt gets it from lastFailure either way, so it
+      // does not pay for a notes session.
       const failure = `$ ${rung.oracle.run}\n${tail(check.out + check.err, 30)}`;
       s.lastFailure = failure;
-      const n = await runClaude(notesPrompt(rung, failure), dir, ladder, 900);
-      s.costUsd += n.costUsd;
-      state.totalCostUsd += n.costUsd;
-      setRung(state, rung.id, s);
-      await commit(dir, ["docs"], `${rung.id} attempt ${s.attempts}: notes from a failed check`, "");
+      if (rung.kind === "build") {
+        const n = await runClaude(notesPrompt(rung, failure), dir, ladder, 900);
+        s.costUsd += n.costUsd;
+        state.totalCostUsd += n.costUsd;
+        setRung(state, rung.id, s);
+        await commit(dir, ["docs"], `${rung.id} attempt ${s.attempts}: notes from a failed check`, "");
+      }
       await resetWorktree(dir);
       await saveState(dir, state);
-      log("    notes kept, code discarded");
+      log(rung.kind === "build" ? "    notes kept, code discarded" : "    discarded");
     }
 
     if (rungState(state, rung.id).status !== "green") {
@@ -364,7 +400,9 @@ const runPhase = async (dir: string, ladder: Ladder, state: State): Promise<numb
         message:
           rung.mode === "interactive"
             ? `You left ${rung.id} before its check passed. Run the orchestrator again to pick it up where it stopped.`
-            : `${rung.maxAttempts} attempts failed. The notes from each are in ${rung.milestones.join(", ")}. This one needs you.`,
+            : rung.kind === "meta"
+              ? `${rung.maxAttempts} attempts at ${rung.id} failed. The build cannot go past ${rung.milestones.join(", ")} until ${LADDER_PATH} has a rung for it. This one needs you.`
+              : `${rung.maxAttempts} attempts failed. The notes from each are in ${rung.milestones.join(", ")}. This one needs you.`,
         detail: [s.lastFailure, "", `Reopen the last attempt: ${door(dir, s) ?? "no session id"}`].join("\n"),
         at: now(),
       });
@@ -386,6 +424,15 @@ const currentLadder = async (dir: string): Promise<Ladder> =>
     ? loadLadder(dir)
     : planningLadder(basename(dir), `build/${basename(dir)}`);
 
+// The plan is re-read every time rather than trusted from the state file, so a
+// milestone added to docs/plan.md by hand shows up without anyone remembering
+// to tell the orchestrator about it.
+const currentState = async (dir: string, ladder: Ladder): Promise<State> => {
+  const state = await loadState(dir, ladder.project);
+  state.plan = await planMilestones(dir);
+  return state;
+};
+
 const runAll = async (dir: string): Promise<number> => {
   const project = basename(dir);
 
@@ -398,17 +445,53 @@ const runAll = async (dir: string): Promise<number> => {
     log(`\nplanning done. Everything from here runs without you unless it asks.\n`);
   }
 
-  const ladder = await loadLadder(dir);
-  const state = await loadState(dir, ladder.project);
-  const code = await runPhase(dir, ladder, state);
-  if (code !== EXIT.done) return code;
+  let ladder = await loadLadder(dir);
+  const state = await currentState(dir, ladder);
+
+  // The ladder is a prefix of the plan, not the whole of it: cards past the
+  // taste boundary are written when their milestone arrives, because each
+  // milestone teaches the next one what its card should say. So running out of
+  // rungs is not finishing. It means the ladder has caught up with the cards,
+  // and the next milestone needs one. Ask the plan, put that milestone on, and
+  // carry on. Only a plan with nothing left in it ends this.
+  for (;;) {
+    state.plan = await planMilestones(dir);
+    const code = await runPhase(dir, ladder, state);
+    if (code !== EXIT.done) return code;
+
+    const step = nextMilestone(state.plan, ladder);
+    if (!step) break;
+
+    const left = uncovered(state.plan, ladder);
+    log(
+      `\nevery rung is green and the plan is not finished.`,
+      `\n${left.join(", ")} ${left.length === 1 ? "is" : "are"} in ${PLAN_PATH} with no rung.`,
+      `\nWriting ${step.next}'s card and putting it on the ladder.\n`,
+    );
+
+    const grew = await runPhase(dir, extendLadder(ladder, step.next, step.previous), state);
+    if (grew !== EXIT.done) return grew;
+
+    // Refusing here rather than going round again is the point: a second lap
+    // would run the same rung against the same ladder forever. Either the
+    // check is not measuring the extension, or the rung is green in the state
+    // file from an earlier run whose ladder has since been rolled back.
+    ladder = await loadLadder(dir);
+    if (!covered(ladder).has(step.next))
+      throw new Error(
+        `X${step.next} is green but ${LADDER_PATH} has no rung for ${step.next}. ` +
+          `Either its check does not measure the extension, or the ladder was ` +
+          `rolled back under it. Put the rung in by hand, or run ` +
+          `\`orchestrator reset X${step.next}\` to make it write one again.`,
+      );
+  }
 
   state.done = true;
   await saveState(dir, state);
   await writeStatus(dir, ladder, state);
   await notify(
     `${ladder.project} complete`,
-    `All ${ladder.rungs.length} rungs green, ${money(state.totalCostUsd)}.`,
+    `Every milestone in the plan is built. ${ladder.rungs.length} rungs, ${money(state.totalCostUsd)}.`,
   );
   log(`\nbuild complete. ${money(state.totalCostUsd)} total.`);
   return EXIT.done;
@@ -418,7 +501,7 @@ const runAll = async (dir: string): Promise<number> => {
 // terminal window it opens; you can also call it yourself.
 const converse = async (dir: string, id: string): Promise<number> => {
   const ladder = await currentLadder(dir);
-  const state = await loadState(dir, ladder.project);
+  const state = await currentState(dir, ladder);
   const rung = ladder.rungs.find((r) => r.id === id);
   if (!rung) throw new Error(`no rung ${id}`);
 
@@ -442,7 +525,7 @@ const converse = async (dir: string, id: string): Promise<number> => {
 
 const answer = async (dir: string, id: string, pass: boolean, note: string): Promise<number> => {
   const ladder = await currentLadder(dir);
-  const state = await loadState(dir, ladder.project);
+  const state = await currentState(dir, ladder);
   if (!ladder.rungs.some((r) => r.id === id)) throw new Error(`no rung ${id} in ${LADDER_PATH}`);
   state.verdicts[id] = { pass, note, at: now() };
   if (state.park?.rungId === id) state.park = null;
@@ -454,7 +537,7 @@ const answer = async (dir: string, id: string, pass: boolean, note: string): Pro
 
 const reset = async (dir: string, id: string): Promise<number> => {
   const ladder = await currentLadder(dir);
-  const state = await loadState(dir, ladder.project);
+  const state = await currentState(dir, ladder);
   delete state.rungs[id];
   delete state.verdicts[id];
   if (state.park?.rungId === id) state.park = null;
@@ -467,7 +550,7 @@ const reset = async (dir: string, id: string): Promise<number> => {
 
 const status = async (dir: string): Promise<number> => {
   const ladder = await currentLadder(dir);
-  const state = await loadState(dir, ladder.project);
+  const state = await currentState(dir, ladder);
   await writeStatus(dir, ladder, state);
   log(await Bun.file(`${dir}/docs/BUILD-STATUS.md`).text());
   return state.park ? EXIT.parked : EXIT.done;

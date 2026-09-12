@@ -1,7 +1,16 @@
 // The three places the orchestrator reports outward: a status file you can
 // glance at, the Cost table inside each card, and a push to the phone.
 
-import { STATUS_PATH, cardPath, rungState, type Ladder, type State } from "./schema";
+import {
+  LADDER_PATH,
+  STATUS_PATH,
+  cardPath,
+  loadLadder,
+  rungState,
+  type Ladder,
+  type State,
+} from "./schema";
+import { PLAN_PATH, uncovered } from "./plan";
 
 const money = (n: number) => `$${n.toFixed(2)}`;
 const mins = (ms: number) => `${Math.round(ms / 60000)}m`;
@@ -17,7 +26,20 @@ const MARK: Record<string, string> = {
 
 // --- BUILD-STATUS.md -------------------------------------------------------
 
-export const writeStatus = async (dir: string, ladder: Ladder, state: State): Promise<void> => {
+// This page is always about the build ladder. The phases that run some other
+// ladder, planning and the single rung that grows the ladder, must not
+// overwrite it with a one-rung view of the project, so the build ladder is
+// read from disk whenever there is one and the running ladder is only the
+// fallback for a project that has not been planned yet.
+const shown = async (dir: string, running: Ladder): Promise<Ladder> => {
+  if (!(await Bun.file(`${dir}/${LADDER_PATH}`).exists())) return running;
+  // Mid-extension the file can be briefly unparseable. That is not the moment
+  // to lose the status page.
+  return loadLadder(dir).catch(() => running);
+};
+
+export const writeStatus = async (dir: string, running: Ladder, state: State): Promise<void> => {
+  const ladder = await shown(dir, running);
   const rows = ladder.rungs.map((rung) => {
     const s = rungState(state, rung.id);
     const cost = s.costUsd > 0 ? money(s.costUsd) : "";
@@ -33,10 +55,21 @@ export const writeStatus = async (dir: string, ladder: Ladder, state: State): Pr
       ? `Parked at ${state.park.rungId}. Waiting on you.`
       : "Running.";
 
+  // The ladder covering every milestone the plan names is a different fact
+  // from every rung being green, and reading only the second one is how a
+  // build gets called finished at its taste boundary.
+  const left = uncovered(state.plan, ladder);
+
   const lines = [
     `# ${ladder.project} build status`,
     "",
     `${headline} ${done} of ${ladder.rungs.length} rungs green, ${money(state.totalCostUsd)} spent.`,
+    ...(left.length
+      ? [
+          `${left.join(", ")} ${left.length === 1 ? "is" : "are"} in ${PLAN_PATH} with no rung yet.`,
+          `Each card is written when its milestone arrives; the run puts it on the ladder itself.`,
+        ]
+      : []),
     `Updated ${new Date().toISOString()}.`,
     "",
     "| | Rung | Milestones | Attempts | Cost | Wall |",

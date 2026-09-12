@@ -142,10 +142,15 @@
     const meta = document.createElement("p");
     meta.className = "meta";
     const green = rungs.filter((r) => s?.rungs?.[r.id]?.status === "green").length;
+    // The ladder only reaches as far as the cards do. Saying "8 of 8 done" and
+    // stopping there reads as finished when four milestones have no rung yet.
+    const onLadder = new Set(rungs.flatMap((r) => r.milestones ?? []));
+    const left = (s?.plan ?? []).filter((m) => !onLadder.has(m));
     meta.textContent = !s
       ? "Nothing planned yet. Start it and it will interview you first."
       : `${green} of ${rungs.length || "?"} done, ${money(s.totalCostUsd)} spent` +
-        (snap.running ? ", running now." : park ? ", waiting on you." : ".");
+        (snap.running ? ", running now." : park ? ", waiting on you." : ".") +
+        (left.length ? ` ${left.join(", ")} still to put on the ladder.` : "");
     main.append(meta);
 
     if (park) main.append(askCard(snap, park));
