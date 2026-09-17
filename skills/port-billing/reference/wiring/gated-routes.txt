@@ -1,0 +1,14 @@
+// assistant/api.ts: every route calls the model
+11:import { requireAssistantAllowance, requireSubscription } from "../billing/public.ts"
+27:assistantApi.use("*", requireAccount, requireSubscription, requireAssistantAllowance)
+
+// profile/api.ts
+4:import { requireSubscription } from "../billing/public.ts"
+9:profileApi.use("*", requireAccount, requireSubscription)
+
+// recipes/api.ts
+4:import { requireSubscription } from "../billing/public.ts"
+22:recipesApi.use("*", requireAccount, requireSubscription)
+
+// contracts: ApiFailure error enum gains payment_required (402) and conflict (409)
+65:  error: z.enum(["timeout", "unavailable", "invalid", "bad_request", "unauthorized", "forbidden", "not_found", "rate_limited", "payment_required", "conflict"]),

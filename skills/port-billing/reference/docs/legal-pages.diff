@@ -1,0 +1,64 @@
+commit 5a41479f55ca1f151c0b7e444f75db07a32eb136
+Author: Luis Martinez <dev@appforgelabs.com>
+Date:   Thu Sep 17 19:36:41 2026 +0700
+
+    feat(billing): implement Stripe billing integration with subscription management
+    
+    - Add billing schema to define subscriptions in the database.
+    - Create billing API endpoints for checkout and subscription management.
+    - Implement webhook handling for Stripe events to manage subscription status.
+    - Add integration tests for billing functionality, including rate limits and Stripe event handling.
+    - Create public middleware for subscription and rate limit checks.
+    - Develop Vue store and components for billing UI, including subscription confirmation.
+    - Document billing setup and pricing details in the project documentation.
+    - Define billing contracts for type safety and validation.
+
+diff --git a/apps/site/src/pages/privacy.astro b/apps/site/src/pages/privacy.astro
+index 96e335d..7923a3b 100644
+--- a/apps/site/src/pages/privacy.astro
++++ b/apps/site/src/pages/privacy.astro
+@@ -51,6 +51,13 @@ import Legal from "../layouts/Legal.astro"
+     that delivers our email. Resend processes it only to deliver that message.
+   </p>
+ 
++  <h2>Payments</h2>
++  <p>
++    Subscriptions are paid through Stripe, which collects and stores your card details. Pawacook never sees
++    or stores your card number. We keep only the Stripe customer and subscription identifiers and whether
++    your subscription is active, so we know whether to give you access.
++  </p>
++
+   <h2>How long we keep it</h2>
+   <p>
+     Account data, profile data, conversations and recipes are kept while your account exists. Sign-in
+diff --git a/apps/site/src/pages/terms.astro b/apps/site/src/pages/terms.astro
+index b25f011..5d1df24 100644
+--- a/apps/site/src/pages/terms.astro
++++ b/apps/site/src/pages/terms.astro
+@@ -13,6 +13,26 @@ import Legal from "../layouts/Legal.astro"
+     generated automatically and are suggestions, not professional advice.
+   </p>
+ 
++  <h2>Subscription and payment</h2>
++  <p>
++    Pawacook costs $29 per month, billed in US dollars through Stripe. There is no free trial. The
++    subscription renews automatically each month until you cancel it.
++  </p>
++  <p>
++    You can cancel at any time from Manage subscription in the app. Cancelling stops future renewals and
++    you keep access until the end of the month you already paid for. Payments are not refunded, except
++    where the law requires it. If a renewal payment fails and cannot be collected, the subscription ends.
++  </p>
++  <p>
++    Each subscription includes up to 400 recipe assistant requests (new recipes and chat messages) in any
++    30-day period, which is about 100 recipes. This limit keeps the service affordable; requests over it
++    are refused until the period resets.
++  </p>
++  <p>
++    We may change the price. We will tell you by email before a new price applies to your next renewal, and
++    you can cancel before then.
++  </p>
++
+   <h2>Your account</h2>
+   <p>
+     You sign in with a Google account or with a link sent to your email address. You are responsible for
