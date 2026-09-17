@@ -1,0 +1,16 @@
+---
+import type { Category } from '../content'
+
+interface Props {
+  category: Category
+}
+
+const { category } = Astro.props
+---
+
+<a
+  href={`/blog/category/${category.slug}`}
+  class="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-700 transition-colors hover:bg-primary-100"
+>
+  {category.label}
+</a>

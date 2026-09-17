@@ -1,0 +1,24 @@
+---
+import { ArrowRight, UtensilsCrossed } from '@lucide/astro'
+import { CTA_CLASSES } from '@shared/ui/marketing/types'
+---
+
+<section class="bg-primary-50 py-20">
+  <div class="max-w-3xl mx-auto px-4 text-center">
+    <UtensilsCrossed class="w-10 h-10 text-primary-600 mx-auto mb-6" />
+    <h2 class="text-3xl font-bold tracking-tight text-neutral-950 mb-4">
+      Scan any menu. Know what's safe.
+    </h2>
+    <p class="text-base text-neutral-600 mb-8 max-w-xl mx-auto">
+      Point your camera at a foreign menu and get instant allergen alerts in your language.
+    </p>
+    <a
+      href="/menu-decoder/"
+      class={CTA_CLASSES.heroPrimary}
+      data-umami-event="blog-cta-click"
+    >
+      Scan a Menu Now
+      <ArrowRight class="w-4 h-4" />
+    </a>
+  </div>
+</section>

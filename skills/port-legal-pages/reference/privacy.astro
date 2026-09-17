@@ -1,0 +1,96 @@
+---
+import Layout from '@/layouts/layout.astro';
+import { legalConfig } from '@shared/config/legal.config';
+
+const { websiteTitle, websiteUrl, emailContact, companyName } = legalConfig;
+---
+
+<Layout
+  title={`Privacy Policy | ${websiteTitle}`}
+  description={`Privacy Policy for ${websiteTitle}.`}
+>
+  <div class="container py-12 md:py-24">
+    <div class="privacy-page prose lg:prose-xl">
+      <h1>Privacy Policy</h1>
+
+      <div class="legal-content prose max-w-none">
+        <p><strong>Last Updated:</strong> March 7, 2026</p>
+
+        <p>
+          This Privacy Policy describes how <strong>{companyName}</strong> ("we", "us", "our") collects, uses, and protects your information when you use <strong>{websiteTitle}</strong> (<a href={websiteUrl}>{websiteUrl}</a>).
+        </p>
+
+        <h2>1. Information We Collect</h2>
+
+        <h3>Information from Google Sign-In</h3>
+        <p>
+          When you sign in with Google, we receive your name, email address, and profile picture from your Google account. We use this to create and manage your account.
+        </p>
+
+        <h3>Payment Information</h3>
+        <p>
+          Payments are processed by <strong>Stripe</strong>. We do not store your credit card details. Stripe may collect payment information in accordance with their own <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+        </p>
+
+        <h3>Purchase History</h3>
+        <p>
+          We store records of your purchases so you can access and download your products at any time.
+        </p>
+
+        <h2>2. How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+          <li>Process your purchases and deliver digital products</li>
+          <li>Send purchase confirmation emails with download links</li>
+          <li>Provide access to your purchased products via your account</li>
+          <li>Respond to support requests</li>
+        </ul>
+        <p>We do not sell your personal information. We do not send marketing emails unless you explicitly opt in.</p>
+
+        <h2>3. Third-Party Services</h2>
+        <p>We use the following third-party services:</p>
+        <ul>
+          <li><strong>Google</strong> — authentication (sign-in)</li>
+          <li><strong>Stripe</strong> — payment processing</li>
+          <li><strong>Resend</strong> — transactional email delivery</li>
+          <li><strong>Cloudflare</strong> — hosting and file storage</li>
+        </ul>
+        <p>Each service has its own privacy policy governing how they handle your data.</p>
+
+        <h2>4. Cookies and Tracking</h2>
+        <p>
+          We use essential cookies to maintain your authentication session. We do not use advertising cookies or third-party tracking scripts for marketing purposes.
+        </p>
+
+        <h2>5. Data Retention</h2>
+        <p>
+          We retain your account and purchase data for as long as your account is active so you can continue to access your purchased products. If you wish to delete your account and associated data, contact us at <a href={`mailto:${emailContact}`}>{emailContact}</a>.
+        </p>
+
+        <h2>6. Data Security</h2>
+        <p>
+          We take reasonable measures to protect your information, including using HTTPS, secure authentication, and trusted third-party processors. However, no method of transmission over the internet is 100% secure.
+        </p>
+
+        <h2>7. Your Rights</h2>
+        <p>You may:</p>
+        <ul>
+          <li>Request access to the personal data we hold about you</li>
+          <li>Request deletion of your account and personal data</li>
+          <li>Contact us with any privacy-related questions or concerns</li>
+        </ul>
+
+        <h2>8. Changes to This Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time. Changes take effect when posted on this page. We encourage you to review this page periodically.
+        </p>
+
+        <h2>9. Contact</h2>
+        <p>
+          <strong>{companyName}</strong><br />
+          Email: <a href={`mailto:${emailContact}`}>{emailContact}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>

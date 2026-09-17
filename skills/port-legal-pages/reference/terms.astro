@@ -1,0 +1,71 @@
+---
+import Layout from '@/layouts/layout.astro';
+import { legalConfig } from '@shared/config/legal.config';
+
+const { websiteTitle, websiteUrl, emailContact, companyName } = legalConfig;
+---
+
+<Layout
+  title={`Terms of Service | ${websiteTitle}`}
+  description={`Terms of Service for ${websiteTitle}.`}
+>
+  <div class="container py-12 md:py-24">
+    <div class="terms-page prose lg:prose-xl">
+      <h1>Terms of Service</h1>
+
+      <div class="legal-content prose max-w-none">
+        <p><strong>Last Updated:</strong> March 7, 2026</p>
+
+        <p>
+          These Terms of Service ("Terms") govern your use of <strong>{websiteTitle}</strong> (<a href={websiteUrl}>{websiteUrl}</a>), operated by <strong>{companyName}</strong> ("we", "us", "our"). By accessing or using our website and purchasing products, you agree to these Terms.
+        </p>
+
+        <h2>1. Products and Delivery</h2>
+        <p>
+          We sell digital products including scripts, templates, guides, AI workflows, and code libraries. All products are delivered digitally. Upon successful payment, you will receive a confirmation email with a download link. You can also access your purchased products at any time from your Purchases page after signing in.
+        </p>
+
+        <h2>2. Account and Authentication</h2>
+        <p>
+          To make a purchase, you must sign in using your Google account. You are responsible for maintaining the security of your account. You may not share your account or download links with others.
+        </p>
+
+        <h2>3. Pricing and Payment</h2>
+        <p>
+          All prices are listed in USD and are fixed per product. Payments are processed securely through Stripe. You agree to provide accurate payment information. All charges are final at the time of purchase.
+        </p>
+
+        <h2>4. Refund Policy</h2>
+        <p>
+          Due to the digital nature of our products, all sales are final. We do not offer refunds once a product has been delivered. If you experience a technical issue preventing you from accessing a purchased product, contact us at <a href={`mailto:${emailContact}`}>{emailContact}</a> and we will work to resolve it.
+        </p>
+
+        <h2>5. License and Usage</h2>
+        <p>
+          When you purchase a digital product, you receive a personal, non-exclusive, non-transferable license to use the product. Unless otherwise stated in the product description, you may not resell, redistribute, or sublicense the product. You may use purchased products in your own projects, including commercial projects, unless the product description explicitly states otherwise.
+        </p>
+
+        <h2>6. Intellectual Property</h2>
+        <p>
+          All content on this website — including product listings, descriptions, images, and the products themselves — is the property of <strong>{companyName}</strong> or its licensors. Purchasing a product grants you a usage license, not ownership of the intellectual property.
+        </p>
+
+        <h2>7. Limitation of Liability</h2>
+        <p>
+          Our products are provided "as is" without warranty of any kind. We are not liable for any damages arising from the use or inability to use our products. Our total liability shall not exceed the amount you paid for the product in question.
+        </p>
+
+        <h2>8. Modifications</h2>
+        <p>
+          We reserve the right to update these Terms at any time. Changes take effect when posted on this page. Continued use of the website after changes constitutes acceptance of the updated Terms.
+        </p>
+
+        <h2>9. Contact</h2>
+        <p>
+          <strong>{companyName}</strong><br />
+          Email: <a href={`mailto:${emailContact}`}>{emailContact}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>

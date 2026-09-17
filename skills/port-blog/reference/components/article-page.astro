@@ -1,0 +1,44 @@
+---
+import type { Author } from '../content'
+import type { Article } from '../blog.logic'
+import ArticleAside from './article-aside.astro'
+import ArticleCta from './article-cta.astro'
+
+export interface Props {
+  author: Author
+  relatedArticles: Article[]
+  authors: Record<string, Author>
+}
+
+const { author, relatedArticles, authors } = Astro.props
+---
+
+<!-- Two-column layout -->
+<div class="flex flex-col lg:flex-row gap-12">
+  <!-- Prose content -->
+  <article class="prose prose-lg min-w-0 max-w-prose flex-1">
+    <slot />
+  </article>
+
+  <!-- Sidebar -->
+  <div class="w-full lg:w-80 shrink-0">
+    <ArticleAside
+      author={author}
+      relatedArticles={relatedArticles}
+      authors={authors}
+    />
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="mt-16">
+  <ArticleCta />
+</div>
+
+<style>
+  article :global(table) {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+</style>

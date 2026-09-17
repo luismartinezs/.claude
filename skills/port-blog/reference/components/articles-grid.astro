@@ -1,0 +1,28 @@
+---
+import type { Author, Category } from '../content'
+import type { Article } from '../blog.logic'
+import { resolveAuthor, resolveCategories } from '../blog.logic'
+import CardArticle from './card-article.astro'
+
+export interface Props {
+  articles: Article[]
+  authors: Record<string, Author>
+  categories: Record<string, Category>
+}
+
+const { articles, authors, categories } = Astro.props
+---
+
+{articles.length > 0 ? (
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {articles.map((article) => (
+      <CardArticle
+        article={article}
+        author={resolveAuthor({ authorId: article.data.author, authors })}
+        categories={resolveCategories({ categorySlugs: article.data.categories, categories })}
+      />
+    ))}
+  </div>
+) : (
+  <p class="py-12 text-center text-neutral-500">No articles yet.</p>
+)}

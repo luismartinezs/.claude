@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '@/layouts/layout.astro'
+import { AUTHORS, CATEGORIES } from '@modules/blog/content'
+import { filterPublished, sortByDate } from '@modules/blog/blog.logic'
+import type { Article } from '@modules/blog/blog.logic'
+import CategoryPill from '@modules/blog/components/category-pill.astro'
+import ArticlesGrid from '@modules/blog/components/articles-grid.astro'
+import ArticleCta from '@modules/blog/components/article-cta.astro'
+
+const entries = await getCollection('blog')
+const articles: Article[] = entries.map((e) => ({ id: e.id, data: e.data }))
+const published = sortByDate(filterPublished({ articles }))
+const categories = Object.values(CATEGORIES)
+---
+
+<Layout
+  title="Blog — SafelyFed"
+  description="Guides for eating safely with food allergies — country-by-country travel tips, allergen guides, and dietary restriction strategies."
+>
+  <!-- Hero -->
+  <section class="bg-neutral-50 py-20">
+    <div class="mx-auto max-w-5xl px-4 text-center">
+      <p class="text-xs font-bold uppercase tracking-wider text-primary-600 mb-4">Blog</p>
+      <h1 class="text-4xl md:text-5xl font-black tracking-tight text-neutral-950 mb-4">
+        Blog
+      </h1>
+      <p class="text-base text-neutral-600 mx-auto max-w-2xl mb-8">
+        Guides for eating safely with food allergies — country-by-country travel tips, allergen guides, and dietary restriction strategies.
+      </p>
+
+      <!-- Category pills -->
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <a
+          href="/blog/"
+          class="inline-flex items-center rounded-full bg-primary-700 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white"
+          aria-current="page"
+        >
+          All
+        </a>
+        {categories.map((cat) => (
+          <CategoryPill category={cat} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Articles grid -->
+  <section class="bg-neutral-50 pb-20">
+    <div class="mx-auto max-w-5xl px-4">
+      <ArticlesGrid articles={published} authors={AUTHORS} categories={CATEGORIES} />
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <ArticleCta />
+</Layout>

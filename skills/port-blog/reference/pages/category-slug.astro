@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content'
+import { ArrowLeft, ChevronRight } from '@lucide/astro'
+import Layout from '@/layouts/layout.astro'
+import { AUTHORS, CATEGORIES, type Category } from '@modules/blog/content'
+import {
+  filterPublished,
+  sortByDate,
+  getArticlesByCategory,
+  type Article,
+} from '@modules/blog/blog.logic'
+import ArticlesGrid from '@modules/blog/components/articles-grid.astro'
+
+export function getStaticPaths() {
+  return Object.values(CATEGORIES).map((category) => ({
+    params: { slug: category.slug },
+    props: { category },
+  }))
+}
+
+interface Props {
+  category: Category
+}
+
+const { category } = Astro.props
+
+const entries = await getCollection('blog')
+const articles: Article[] = entries.map((e) => ({ id: e.id, data: e.data }))
+const published = sortByDate(filterPublished({ articles }))
+const filtered = getArticlesByCategory({ categorySlug: category.slug, articles: published })
+---
+
+<Layout
+  title={`${category.label} — Blog`}
+  description={category.description}
+>
+  <section class="bg-neutral-50 py-20">
+    <div class="mx-auto max-w-5xl px-4">
+      <!-- Breadcrumb -->
+      <nav aria-label="Breadcrumb" class="mb-8 flex items-center gap-1 text-sm text-neutral-500">
+        <a href="/blog/" class="transition-colors hover:text-neutral-900">Blog</a>
+        <ChevronRight class="h-4 w-4" />
+        <span class="text-neutral-900">{category.label}</span>
+      </nav>
+
+      <!-- Headline -->
+      <h1 class="text-4xl md:text-5xl font-black tracking-tight text-neutral-950 mb-4">
+        {category.label}
+      </h1>
+      <p class="text-base text-neutral-600 max-w-2xl mb-12">
+        {category.description}
+      </p>
+
+      <!-- Filtered grid -->
+      <ArticlesGrid articles={filtered} authors={AUTHORS} categories={CATEGORIES} />
+
+      <!-- Back link -->
+      <div class="mt-12">
+        <a
+          href="/blog/"
+          class="inline-flex items-center gap-2 text-primary-600 font-semibold transition-colors hover:text-primary-700"
+        >
+          <ArrowLeft class="h-4 w-4" />
+          View all articles
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

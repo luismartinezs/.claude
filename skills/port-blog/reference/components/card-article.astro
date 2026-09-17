@@ -1,0 +1,94 @@
+---
+import type { Author, Category } from '../content'
+import type { Article } from '../blog.logic'
+import CategoryPill from './category-pill.astro'
+import AuthorAvatar from './author-avatar.astro'
+
+export interface Props {
+  article: Article
+  author: Author
+  categories: Category[]
+  class?: string
+}
+
+const { article, author, categories, class: className = '' } = Astro.props
+
+const formattedDate = article.data.publishedAt.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+})
+---
+
+<article
+  class:list={[
+    'group relative flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-md',
+    className,
+  ]}
+>
+  <!-- Cover image -->
+  <a href={`/blog/${article.id}/`} tabindex="-1" aria-hidden="true">
+    <img
+      src={article.data.image}
+      alt={article.data.title}
+      width="600"
+      height="338"
+      class="aspect-video w-full object-cover"
+      loading="lazy"
+    />
+  </a>
+
+  <!-- Content -->
+  <div class="flex flex-1 flex-col gap-3 p-5">
+    <!-- Category pills: show primary + expandable "+N" -->
+    {categories[0] && (
+      <div class="relative z-10 flex flex-wrap gap-2" data-category-pills>
+        <CategoryPill category={categories[0]} />
+        {categories.length > 1 && (
+          <>
+            {categories.slice(1).map((cat) => (
+              <span class="hidden" data-extra-pill>
+                <CategoryPill category={cat} />
+              </span>
+            ))}
+            <button
+              type="button"
+              data-expand-pills
+              class="inline-flex items-center rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-500 transition-colors hover:bg-neutral-200"
+            >
+              +{categories.length - 1}
+            </button>
+          </>
+        )}
+      </div>
+    )}
+
+    <!-- Title (stretched link) -->
+    <h3 class="text-xl font-bold text-neutral-900">
+      <a href={`/blog/${article.id}/`} class="after:absolute after:inset-0">
+        {article.data.title}
+      </a>
+    </h3>
+
+    <!-- Summary -->
+    <p class="line-clamp-2 text-sm text-neutral-500">{article.data.summary}</p>
+
+    <!-- Author row -->
+    <div class="mt-auto flex items-center gap-3 pt-2">
+      <AuthorAvatar author={author} size="sm" />
+      <span class="text-sm font-semibold text-neutral-900">{author.name}</span>
+      <span class="text-sm text-neutral-400">{formattedDate}</span>
+    </div>
+  </div>
+</article>
+
+<script>
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest('[data-expand-pills]');
+    if (!btn) return;
+    const container = btn.closest('[data-category-pills]');
+    if (!container) return;
+    container.querySelectorAll('[data-extra-pill]').forEach((el) => el.classList.remove('hidden'));
+    btn.remove();
+  });
+</script>

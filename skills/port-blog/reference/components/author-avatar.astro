@@ -1,0 +1,32 @@
+---
+import type { Author } from '../content'
+
+export interface Props {
+  author: Author
+  size?: 'sm' | 'md'
+  class?: string
+}
+
+const { author, size = 'md', class: className = '' } = Astro.props
+
+const sizeClasses = {
+  sm: 'h-8 w-8 text-sm',
+  md: 'w-12 h-12 text-lg',
+} as const
+---
+
+{author.avatar ? (
+  <img
+    src={author.avatar}
+    alt={author.name}
+    class:list={[sizeClasses[size], 'rounded-full object-cover shrink-0', className]}
+    loading="lazy"
+  />
+) : (
+  <div
+    class:list={[sizeClasses[size], 'rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-semibold shrink-0', className]}
+    aria-hidden="true"
+  >
+    {author.name.charAt(0).toUpperCase()}
+  </div>
+)}

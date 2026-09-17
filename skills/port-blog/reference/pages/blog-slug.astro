@@ -1,0 +1,160 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { getCollection, render } from 'astro:content'
+import Layout from '@/layouts/layout.astro'
+import { AUTHORS, CATEGORIES } from '@/modules/blog/content'
+import {
+  filterPublished,
+  sortByDate,
+  getRelatedArticles,
+  resolveAuthor,
+  resolveCategories,
+} from '@/modules/blog/blog.logic'
+import CategoryPill from '@/modules/blog/components/category-pill.astro'
+import ArticlePage from '@/modules/blog/components/article-page.astro'
+import AuthorAvatar from '@/modules/blog/components/author-avatar.astro'
+import { APP_CONFIG } from '@repo/config'
+
+export const getStaticPaths = (async () => {
+  const allEntries = await getCollection('blog')
+  const published = sortByDate(filterPublished({ articles: allEntries }))
+
+  return published.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry, allPublished: published },
+  }))
+}) satisfies GetStaticPaths
+
+const { entry, allPublished } = Astro.props
+const { Content } = await render(entry)
+
+// Build-time validation: throws on unknown author/category
+const author = resolveAuthor({ authorId: entry.data.author, authors: AUTHORS })
+const categories = resolveCategories({
+  categorySlugs: entry.data.categories,
+  categories: CATEGORIES,
+})
+
+const related = getRelatedArticles({
+  currentId: entry.id,
+  categories: entry.data.categories,
+  allArticles: allPublished,
+})
+
+const formattedDate = entry.data.publishedAt.toLocaleDateString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+})
+
+const site = Astro.site?.origin ?? ''
+
+// JSON-LD BlogPosting schema
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: entry.data.title,
+  description: entry.data.summary,
+  image: entry.data.image,
+  datePublished: entry.data.publishedAt.toISOString(),
+  ...(entry.data.updatedAt && { dateModified: entry.data.updatedAt.toISOString() }),
+  author: {
+    '@type': 'Person',
+    name: author.name,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: APP_CONFIG.name,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${site}/favicon.svg`,
+    },
+  },
+}
+---
+
+<Layout
+  title={`${entry.data.title} — Blog`}
+  description={entry.data.summary}
+  seo={{
+    openGraph: {
+      basic: {
+        title: entry.data.title,
+        type: 'article',
+        image: entry.data.image,
+      },
+      article: {
+        publishedTime: entry.data.publishedAt.toISOString(),
+        ...(entry.data.updatedAt && { modifiedTime: entry.data.updatedAt.toISOString() }),
+        authors: [author.name],
+        tags: categories.map((c) => c.label),
+      },
+    },
+  }}
+>
+  <!-- JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} slot="head" />
+
+  <div class="container py-12 md:py-16">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="mb-6 text-sm text-neutral-500">
+      <a href="/blog/" class="hover:text-primary-600 transition-colors">Blog</a>
+      <span class="mx-2">&gt;</span>
+      {categories[0] && (
+        <>
+          <a
+            href={`/blog/category/${categories[0].slug}/`}
+            class="hover:text-primary-600 transition-colors"
+          >
+            {categories[0].label}
+          </a>
+          <span class="mx-2">&gt;</span>
+        </>
+      )}
+      <span class="text-neutral-400">{entry.data.title}</span>
+    </nav>
+
+    <!-- Category pills -->
+    <div class="mb-4 flex flex-wrap gap-2">
+      {categories.map((cat) => (
+        <CategoryPill category={cat} />
+      ))}
+    </div>
+
+    <!-- Headline -->
+    <h1 class="text-4xl md:text-5xl font-black tracking-tight text-neutral-950">
+      {entry.data.title}
+    </h1>
+
+    <!-- Summary -->
+    <p class="mt-4 text-lg text-neutral-500">{entry.data.summary}</p>
+
+    <!-- Author row -->
+    <div class="mt-6 flex items-center gap-3">
+      <AuthorAvatar author={author} size="sm" class="!h-10 !w-10" />
+      <div>
+        <span class="text-sm font-semibold text-neutral-900">{author.name}</span>
+        <span class="mx-2 text-neutral-300">&middot;</span>
+        <time datetime={entry.data.publishedAt.toISOString()} class="text-sm text-neutral-400">
+          {formattedDate}
+        </time>
+      </div>
+    </div>
+
+    <!-- Cover image -->
+    <img
+      src={entry.data.image}
+      alt={entry.data.title}
+      width="1200"
+      height="675"
+      class="mt-8 aspect-video w-full rounded-xl object-cover"
+    />
+
+    <!-- Article body + sidebar + CTA -->
+    <div class="mt-12">
+      <ArticlePage author={author} relatedArticles={related} authors={AUTHORS}>
+        <Content />
+      </ArticlePage>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,31 @@
+<!-- Drop this component into any page to track scroll depth via Umami -->
+<script>
+  import {
+    getScrollPercent,
+    getNewThresholds,
+    allThresholdsFired,
+  } from '@/shared/analytics/scroll-tracking.logic';
+
+  const fired = new Set<number>();
+
+  function checkScroll() {
+    const scrollTop = window.scrollY;
+    const scrollableHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const percent = getScrollPercent(scrollTop, scrollableHeight);
+    const newThresholds = getNewThresholds(percent, fired);
+
+    for (const threshold of newThresholds) {
+      fired.add(threshold);
+      if (typeof umami !== 'undefined') {
+        umami.track('scroll-depth', { depth: `${threshold}%` });
+      }
+    }
+
+    if (allThresholdsFired(fired)) {
+      window.removeEventListener('scroll', checkScroll);
+    }
+  }
+
+  window.addEventListener('scroll', checkScroll, { passive: true });
+</script>

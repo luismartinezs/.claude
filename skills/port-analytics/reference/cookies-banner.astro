@@ -1,0 +1,54 @@
+---
+// Cookies consent banner component
+---
+
+<div
+  id="cookies-banner"
+  class="fixed bottom-0 sm:bottom-4 sm:right-4 sm:left-auto sm:max-w-sm z-50 bg-neutral-900 border border-neutral-800 sm:rounded-xl shadow-lg opacity-0 hidden cookies-banner"
+>
+  <div class="p-4 flex flex-col gap-3">
+    <p class="text-sm text-neutral-300 leading-relaxed m-0">
+      By using this app you agree to the use of cookies. You can find details
+      on how we use cookies in our <a
+        href="/privacy/"
+        class="text-primary-400 font-medium underline decoration-2 underline-offset-2 hover:text-primary-300 transition-colors duration-200"
+        >Privacy Policy</a
+      >.
+    </p>
+    <button
+      id="cookies-close"
+      class="self-end px-4 py-2 text-sm font-semibold rounded-lg border-0 cursor-pointer transition-all duration-200 bg-primary-600 text-white hover:-translate-y-px hover:shadow-md hover:bg-primary-700 active:translate-y-0"
+      aria-label="Accept and close cookies banner"
+    >
+      Close
+    </button>
+  </div>
+</div>
+
+<style>
+  .cookies-banner:not(.hidden) {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  // Check if user has already accepted cookies
+  const cookiesAccepted = localStorage.getItem('cookies-accepted');
+  const banner = document.getElementById('cookies-banner');
+  const closeBtn = document.getElementById('cookies-close');
+
+  // Show banner if user hasn't accepted yet
+  if (!cookiesAccepted && banner) {
+    banner.classList.remove('hidden');
+  }
+
+  // Handle close button click
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      if (banner) {
+        banner.classList.add('hidden');
+        localStorage.setItem('cookies-accepted', 'true');
+      }
+    });
+  }
+</script>

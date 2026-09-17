@@ -1,0 +1,28 @@
+<!--
+  Umami loader. Goes in the site layout <head>.
+  In the reference, PUBLIC_UMAMI_URL / PUBLIC_UMAMI_ID come from Astro env
+  (envField, public/client scope) and isProd = import.meta.env.PROD.
+  The script only loads in production AND when both env vars are set, so
+  dev traffic and unconfigured deploys never pollute analytics.
+-->
+
+<!-- Self-exclusion toggle: visit any page with ?admin=true to stop being
+     tracked on this device (uses Umami's localStorage kill switch),
+     ?admin=false to re-enable. -->
+<script is:inline>
+  (function() {
+    var p = new URLSearchParams(window.location.search).get('admin');
+    if (p === 'true') localStorage.setItem('umami.disabled', '1');
+    if (p === 'false') localStorage.removeItem('umami.disabled');
+  })();
+</script>
+
+{
+  isProd && PUBLIC_UMAMI_URL && PUBLIC_UMAMI_ID && (
+    <script
+      defer
+      src={`${PUBLIC_UMAMI_URL}/script.js`}
+      data-website-id={PUBLIC_UMAMI_ID}
+    />
+  )
+}

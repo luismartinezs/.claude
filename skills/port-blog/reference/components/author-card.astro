@@ -1,0 +1,27 @@
+---
+import type { Author } from '../content';
+import AuthorAvatar from './author-avatar.astro';
+
+export interface Props {
+  author: Author;
+  class?: string;
+}
+
+const { author, class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={[
+    'border border-neutral-200 rounded-xl p-5 space-y-4',
+    className,
+  ]}
+>
+  <div class="flex items-center gap-3">
+    <AuthorAvatar author={author} size="md" />
+    <div>
+      <p class="text-sm font-semibold text-neutral-900">{author.name}</p>
+      <p class="text-sm text-neutral-500">{author.role}</p>
+    </div>
+  </div>
+  <p class="text-sm text-neutral-600 leading-relaxed">{author.bio}</p>
+</div>

@@ -1,0 +1,34 @@
+# Production topology: one origin, three artefacts. Only the API is a process.
+pawacook.app {
+	encode zstd gzip
+
+	# The API sets its own headers; these cover the static site and the SPA.
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# The authenticated SPA, with a history fallback so deep links work.
+	handle_path /app/* {
+		root * /srv/pawacook/app
+		try_files {path} /index.html
+		file_server
+	}
+
+	# Caddy replaces any client-sent X-Forwarded-For with the real peer address,
+	# which is what the API's rate limits key on. The API must not be reachable
+	# except through this proxy.
+	handle /api/* {
+		reverse_proxy localhost:8787
+	}
+
+	# Everything else is the static Astro site, including /privacy and /terms.
+	handle {
+		root * /srv/pawacook/site
+		try_files {path} {path}/ {path}.html
+		file_server
+	}
+}

@@ -6,7 +6,7 @@
 # secret, so the safe default is to ignore everything and name the exceptions.
 #
 # CONSEQUENCE, read before deleting anything here: only the paths listed below
-# are recoverable from git. skills/, hooks/, settings.json and .claude/ are NOT
+# are recoverable from git. hooks/, settings.json and .claude/ are NOT
 # tracked, so removing a file in those is irreversible. Check `git ls-files`
 # before you rm.
 *
@@ -23,6 +23,12 @@
 !playbooks/**
 !scripts/
 !scripts/**
+!skills/
+!skills/**
+# Synced from claude.ai by the harness, and a symlink to an installed
+# third-party skill: neither is authored here.
+skills/synced/
+skills/find-skills
 !orchestrator/
 !orchestrator/**
 orchestrator/node_modules/
