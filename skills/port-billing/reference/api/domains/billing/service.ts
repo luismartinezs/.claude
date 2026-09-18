@@ -48,6 +48,16 @@ export const grantsAccess = (entitlement: Entitlement | null, billingEnabled: bo
 
 export const hasAccess = (row: SubscriptionRow | null): boolean => grantsAccess(row, stripeConfig !== null)
 
+/** The App Forge Labs owner, who does not pay for their own app. */
+const OWNER_EMAIL = "appforgelabsllc@gmail.com"
+
+/**
+ * Access granted beside a subscription rather than through one, so the Stripe
+ * rules above stay exactly as strict and the owner needs no Stripe objects at
+ * all. Keyed on the email because sign-in only ever yields a verified one.
+ */
+export const isOwner = (email: string): boolean => email.toLowerCase() === OWNER_EMAIL
+
 const idOf = (value: string | { id: string } | null): string | null =>
   value === null ? null : typeof value === "string" ? value : value.id
 

@@ -1,6 +1,6 @@
 import type Stripe from "stripe"
 import { describe, expect, test } from "vitest"
-import { grantsAccess, productKeyOf } from "./service.ts"
+import { grantsAccess, isOwner, productKeyOf } from "./service.ts"
 
 const pro = (status: string) => ({ status, productKey: "pro" })
 
@@ -24,6 +24,19 @@ describe("grantsAccess", () => {
 
   test("without billing configured every account has access", () => {
     expect(grantsAccess(null, false)).toBe(true)
+  })
+})
+
+describe("isOwner", () => {
+  test("the owner is recognised whatever case the address was typed in", () => {
+    expect(isOwner("appforgelabsllc@gmail.com")).toBe(true)
+    expect(isOwner("AppForgeLabsLLC@Gmail.com")).toBe(true)
+  })
+
+  test("no one else is the owner, including addresses that merely contain it", () => {
+    for (const email of ["", "someone@example.com", "appforgelabsllc@gmail.com.example.com", "xappforgelabsllc@gmail.com"]) {
+      expect(isOwner(email), email).toBe(false)
+    }
   })
 })
 

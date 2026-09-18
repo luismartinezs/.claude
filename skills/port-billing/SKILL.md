@@ -1,6 +1,6 @@
 ---
 name: port-billing
-description: Port a production-grade Stripe subscription paywall (hosted Checkout and Customer Portal, signature-verified webhook that re-reads subscriptions from Stripe, access tied to this app's price metadata on the shared App Forge Labs Stripe account, double-charge guards, server-side 402 gate, optional monthly usage allowance, fail-closed env) into a Hono/Vue/Postgres codebase, plus idempotent provisioning of the product, price, portal configuration and webhook. Use when asked to add payments, billing, subscriptions, a paywall, Stripe, checkout, "charge users", a pricing plan, or to review or harden an existing Stripe integration. Contains the reference implementation, security invariants, porting steps, real-database integration tests, Playwright flows, a mutation check that proves every guard survived the port, and the provisioning script.
+description: Port a production-grade Stripe subscription paywall (hosted Checkout and Customer Portal, signature-verified webhook that re-reads subscriptions from Stripe, access tied to this app's price metadata on the shared App Forge Labs Stripe account, double-charge guards, server-side 402 gate, an owner grant that comps the account's owner without any Stripe object, optional monthly usage allowance, fail-closed env) into a Hono/Vue/Postgres codebase, plus idempotent provisioning of the product, price, portal configuration and webhook. Use when asked to add payments, billing, subscriptions, a paywall, Stripe, checkout, "charge users", a pricing plan, or to review or harden an existing Stripe integration. Contains the reference implementation, security invariants, porting steps, real-database integration tests, Playwright flows, a mutation check that proves every guard survived the port, and the provisioning script.
 ---
 
 # port-billing: Stripe subscription paywall
@@ -43,6 +43,9 @@ If the target lacks them, run `port-auth` first.
   data; `requireAssistantAllowance` (429) on routes that spend money per call.
 - **One row per account** in `subscriptions`: Stripe customer, subscription id,
   status, and the `product_key` read from this app's price on the subscription.
+- **Owner grant**: the App Forge Labs identity reaches the paid product with no
+  subscription, no Stripe object and no coupon. Checkout refuses it rather than
+  billing it.
 - **Without Stripe configured** (development, tests) everyone counts as
   subscribed; production refuses to start without every Stripe value.
 - **Design-only**: the Subscribe screen, the confirming state, where the
@@ -52,7 +55,7 @@ If the target lacks them, run `port-auth` first.
 
 | File | Role |
 |---|---|
-| `api/domains/billing/service.ts` | Access rule, webhook handling, stale-row re-read, pre-checkout check. Core semantics |
+| `api/domains/billing/service.ts` | Access rule, owner grant, webhook handling, stale-row re-read, pre-checkout check. Core semantics |
 | `api/domains/billing/api.ts` | Status, checkout, portal routes; `createStripeWebhook` factory (testable with real signatures) |
 | `api/domains/billing/public.ts` | `requireSubscription`, `requireAssistantAllowance`, `ASSISTANT_ALLOWANCE`: the whole surface for other domains |
 | `api/domains/billing/service.test.ts` | Access rule and price-metadata reading (pure) |
@@ -103,18 +106,28 @@ If the target lacks them, run `port-auth` first.
    schema change showed the paywall to a paying subscriber, who paid twice.
 8. **The server enforces the paywall on every route family with account data
    or per-call cost.** 402 whatever the page shows. The SPA gate is UX only.
-9. **Redirect URLs are built on the server from `APP_ORIGIN`.** Never accept
-   `successUrl`/`returnUrl` from the client (open redirect via Stripe).
-10. **The portal uses the app's own configuration**, created through the API
+9. **The owner passes the paywall, and no one else does without paying.** The
+   business identity that owns the Stripe account is not billed for a product
+   sold from it (shared setup doc: *The owner does not pay*). `isOwner` sits
+   *beside* the subscription rules, never inside them, so `grantsAccess` and
+   `hasAccess` judge a subscriber by exactly the conditions they did before.
+   Checkout refuses the owner rather than billing them, and status reports
+   nothing to manage, so the SPA never opens a portal for a customer that does
+   not exist. Keyed on the email because sign-in only yields a verified one;
+   without verified email this would be an open door. Comping through Stripe
+   instead was tried and rejected — the setup doc records why.
+10. **Redirect URLs are built on the server from `APP_ORIGIN`.** Never accept
+    `successUrl`/`returnUrl` from the client (open redirect via Stripe).
+11. **The portal uses the app's own configuration**, created through the API
     (the Dashboard edits only the shared default): no plan switching, cancel at
     period end.
-11. **Production fails closed.** `NODE_ENV` has no default; production refuses
+12. **Production fails closed.** `NODE_ENV` has no default; production refuses
     to start without the secret key, webhook secret, price id and portal
     configuration id, and billing-off only exists in development and test.
-12. **Secrets never reach logs, code, or the conversation.** Restricted keys
+13. **Secrets never reach logs, code, or the conversation.** Restricted keys
     (per the shared doc); the provisioning script writes the signing secret
     straight into the env file. Logs carry `userId`, status and product key.
-13. **Every invariant above has a test, and the mutation check passes.** A port
+14. **Every invariant above has a test, and the mutation check passes.** A port
     without the tests is not a port of this skill.
 
 ## Known adaptation points (decision rules)
@@ -151,6 +164,13 @@ If the target lacks them, run `port-auth` first.
 - **Stripe account**: *App Forge Labs product* → the shared account, slug =
   product slug. *Different legal entity or payout* → a separate account (shared
   doc); metadata filtering still costs nothing, keep it.
+- **Owner grant**: *App Forge Labs product* → `OWNER_EMAIL` as the reference
+  has it. *Different legal entity* → that entity's identity instead. *Client
+  work, or any product the operator does not own* → drop `isOwner` and both its
+  tests; do not leave a bypass in someone else's paywall. *More than one person
+  comped* → still not this: a set of addresses in code is a plan-shaped thing
+  wearing a grant's clothes, so give them a coupon, which is auditable and
+  revocable without a deploy.
 - **Topology**: *webhook reaches the API through the same proxy* → as
   reference. *Different host* → the endpoint URL follows the API; the Origin
   guard exemption stays route-specific, never a blanket bypass.

@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from "hono"
 import { PLAN, USAGE_LIMIT_MESSAGE } from "@pawacook/contracts"
 import type { AuthedEnv } from "../auth/public.ts"
 import { isRateLimited, type RateLimit } from "../../platform/rate-limit.ts"
-import { findSubscription, hasAccess } from "./service.ts"
+import { findSubscription, hasAccess, isOwner } from "./service.ts"
 
 /** The plan's cost ceiling: about 100 recipes, each with a few chat changes. */
 export const ASSISTANT_ALLOWANCE: RateLimit = {
@@ -12,8 +12,11 @@ export const ASSISTANT_ALLOWANCE: RateLimit = {
 
 /** Runs after requireAccount: refuses every request from an account without an active subscription. */
 export const requireSubscription: MiddlewareHandler<AuthedEnv> = async (c, next) => {
-  const row = await findSubscription(c.get("account").id)
-  if (!hasAccess(row)) return c.json({ error: "payment_required", message: "Subscribe to continue" }, 402)
+  const account = c.get("account")
+  if (!isOwner(account.email)) {
+    const row = await findSubscription(account.id)
+    if (!hasAccess(row)) return c.json({ error: "payment_required", message: "Subscribe to continue" }, 402)
+  }
   await next()
 }
 

@@ -10,6 +10,7 @@ import {
   findSubscription,
   handleStripeEvent,
   hasAccess,
+  isOwner,
   stripe,
   subscriptionBeforeCheckout,
   type StripeReader,
@@ -25,13 +26,17 @@ billingApi.use("*", requireAccount)
 
 // A denied subscription is confirmed with Stripe before the paywall is shown.
 billingApi.get("/", async (c) => {
-  const row = await currentSubscription(stripe, currentAccount(c).id)
-  return c.json({ active: hasAccess(row), manageable: row !== null } satisfies BillingStatus)
+  const account = currentAccount(c)
+  const row = await currentSubscription(stripe, account.id)
+  // The owner is active without a subscription, so there is nothing to manage.
+  return c.json({ active: isOwner(account.email) || hasAccess(row), manageable: row !== null } satisfies BillingStatus)
 })
 
 /** Starts Stripe's hosted checkout for the one monthly plan. */
 billingApi.post("/checkout", async (c) => {
   const account = currentAccount(c)
+  // The owner already has access, and a checkout would bill them for it.
+  if (isOwner(account.email)) return c.json({ error: "conflict", message: "Already subscribed" }, 409)
   const row = stripe ? await subscriptionBeforeCheckout(stripe, account.id) : await findSubscription(account.id)
   // A second checkout would start a second subscription and charge the customer twice.
   if (hasAccess(row)) return c.json({ error: "conflict", message: "Already subscribed" }, 409)

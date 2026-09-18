@@ -25,6 +25,7 @@ vi.mock("../../platform/env.ts", async (importOriginal) => {
  * runs, which vi.hoisted guarantees.
  */
 const fake = vi.hoisted(() => ({
+  run: `paywalltest-${Date.now()}`,
   subscriptionsByCustomer: new Map<string, { id: string; status: string; customer: string }[]>(),
   sessions: [] as Record<string, unknown>[],
 }))
@@ -38,6 +39,13 @@ vi.mock("./service.ts", async (importOriginal) => {
   })
   return {
     ...actual,
+    /**
+     * A stand-in owner, because this suite shares the development database and
+     * would otherwise create, then delete, the account the owner signs in with
+     * locally. Whether the real address is the owner is service.test.ts's
+     * question; this suite's is whether the routes ask at all.
+     */
+    isOwner: (email: string) => email === `${fake.run}-owner@example.com`,
     stripe: {
       subscriptions: {
         retrieve: async (id: string) => {
@@ -66,7 +74,7 @@ const { env } = await import("../../platform/env.ts")
 const { hashToken, newId, newToken } = await import("../../platform/ids.ts")
 const { SESSION_COOKIE } = await import("../auth/public.ts")
 
-const RUN = `paywalltest-${Date.now()}`
+const RUN = fake.run
 
 const signedIn = async (label: string, subscription?: { status: string; productKey: string | null }) => {
   const id = newId()
@@ -148,6 +156,21 @@ describe("paywall with billing configured", () => {
 
     expect(response.status).toBe(409)
     expect(fake.sessions).toEqual([])
+  })
+
+  test("the owner passes the paywall, and is never billed, with no subscription at all", async () => {
+    const { id, cookie } = await signedIn("owner")
+    fake.sessions.length = 0
+
+    for (const route of PROTECTED) expect((await call(route, cookie)).status, route.path).not.toBe(402)
+    const status = await app.request("/api/billing", { headers: { Cookie: cookie } })
+    const checkout = await app.request("/api/billing/checkout", { method: "POST", headers: { Cookie: cookie, Origin: env.APP_ORIGIN } })
+
+    expect(await status.json()).toEqual({ active: true, manageable: false })
+    // A checkout would charge the owner for access they already have.
+    expect(checkout.status).toBe(409)
+    expect(fake.sessions).toEqual([])
+    expect(await db.select().from(subscriptions).where(eq(subscriptions.accountId, id))).toEqual([])
   })
 
   test("the status endpoint reports the paywall to the SPA", async () => {

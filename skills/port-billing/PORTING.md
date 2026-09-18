@@ -61,6 +61,10 @@ Reference: `api/domains/billing/`, `api/app.ts`, `wiring/gated-routes.txt`
 
 - Port `service.ts`, `api.ts`, `public.ts`. Set `APP_METADATA` to the target's
   slug and plan key. Granularity follows the target.
+- Keep `isOwner` and its three call sites (the 402 gate, status, checkout), or
+  drop all three deliberately per the owner-grant decision rule. **Trap**: it
+  must sit beside `hasAccess`, never inside `grantsAccess`, or the mutation
+  check cannot tell a widened grant from a widened access rule.
 - Register the webhook route before the Origin guard and after security
   headers. **Trap**: in Hono a later `app.route("/api/billing", ...)` with
   `use("*", requireAccount)` still matches the webhook path; registering the
@@ -88,6 +92,11 @@ Reference: `*.test.ts` under `api/domains/billing/`
 - **Trap**: the target's `.env` may hold real provider keys (Resend, Stripe
   live). Integration tests must never reach a live service; blank those keys
   for the test run or make the suite hermetic.
+- **Trap**: never put the real owner address in a database-backed test.
+  Integration tests share the development database, so a suite that inserts it
+  collides with the account the owner signs in with locally, and its cleanup
+  then deletes that account. The paywall suite mocks `isOwner` to a run-scoped
+  stand-in and `service.test.ts` covers the real address purely.
 - **Run tests and typecheck now.**
 
 ## 5. SPA and site
