@@ -73,6 +73,10 @@ Lessons:
   one per doc. The one real miss ("opus or fable at high effort?" → model-picking doc,
   ranked 5th at 0.53) was a description that said "Claude model" without naming the models.
 - Caveats: small set, self-written labels and descriptions, clean single-intent prompts.
+- **Decision (2026-09-19): not built.** ~/claymore has no reliable current-vs-outdated signal
+  (outdated docs sit outside `legacy/`, and some `legacy/` docs are still accurate), and
+  pointing an agent at stale doctrine is worse than pointing at nothing. Luis references docs
+  manually instead. Revisit only if the vault gains a trustworthy "current" marker.
 
 ## Experiment: Stop-hook quality gate, mock cases (2026-09-19, /home/luis/dev/jev-tests/quality-gate)
 
@@ -87,3 +91,12 @@ rules combine. 17 hand-written cases (9 should block, 8 should pass): **17/17 at
 - Splitting facts (code) from wording (Jev) is what made it work: "did a test run after the last
   edit" is unreliable for Jev (dates/order/counting weakness) and trivial in code.
 - Caveat: self-written, short, clean cases. Real final messages are long multi-part summaries.
+- **Mock results did not transfer to real transcripts.** Replaying 20 real turns (this
+  session + a Codex session) first gave 7 would-blocks, all false alarms. Real requests are
+  mostly questions and advice, not tasks. Fixes that brought it to 0 real false alarms
+  while keeping 17/17 mock: a `request_is_task` noul gating the stop-short checks (0.94–0.98
+  for tasks, 0.02–0.11 for questions); verification checks only when code was edited;
+  exit codes ≥128 (killed by signal) are not test failures; "advice the user asked for" and
+  "needs permission (e.g. commit)" excluded from hands_back. Always replay on real transcripts.
+- Live since 2026-09-19 in log-only mode: `~/bin/jev-quality-gate` (Stop hook, Claude Code
+  and Codex). Review with `jev-quality-gate review --days 7`.

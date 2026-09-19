@@ -88,7 +88,11 @@ Hono/Bun/Vue products) or `reference/jev_client.py` (Python, httpx + pydantic).
 - `reference/field-notes.md`: jev-1.13 failure modes and the observed results of
   the form-gate experiment.
 - Worked project: `/home/luis/dev/jev-tests` (live form gate: FastAPI + debounced
-  textarea, `audit.py`, tests with a mocked transport).
+  textarea, `audit.py`, tests with a mocked transport; `librarian/` and `quality-gate/`
+  experiments).
+- Running integrations: `~/bin/jev-turn-label` (phone notification priority, Stop hook) and
+  `~/bin/jev-quality-gate` (log-only quality gate, Stop hook, Claude Code + Codex). Both
+  read the key from `~/.config/jev/env`.
 
 ## Going deeper
 
