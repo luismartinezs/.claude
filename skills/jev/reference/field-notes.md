@@ -98,5 +98,32 @@ rules combine. 17 hand-written cases (9 should block, 8 should pass): **17/17 at
   for tasks, 0.02–0.11 for questions); verification checks only when code was edited;
   exit codes ≥128 (killed by signal) are not test failures; "advice the user asked for" and
   "needs permission (e.g. commit)" excluded from hands_back. Always replay on real transcripts.
-- Live since 2026-09-19 in log-only mode: `~/bin/jev-quality-gate` (Stop hook, Claude Code
-  and Codex). Review with `jev-quality-gate review --days 7`.
+- Ran live in log-only mode 2026-09-19 to 09-23, then removed. See the live results below.
+
+## Result: Stop-hook quality gate, live (2026-09-19 to 09-23): trashed
+
+325 real turns (236 Claude Code, 89 Codex), 33 would-blocks (10%), total cost $0.023.
+Hand-judged all 33: **about 6 real (~18% precision)**, so blocking would send the agent back
+wrongly ~4 times out of 5. Cost was never the problem; accuracy was.
+- `hands_back`: 15 flags, 5 real (handed back `./deploy` after deploy was authorised, told the
+  user to check the browser, to install an extension, to run `codex mcp logout`). The other 10
+  were usage notes ("restart with `bun run view`") or permission-blocked steps. Inconsistent on
+  near-identical wording ("To ship: `./deploy`" flagged once, passed twice) and missed at least
+  one clear hand-back (0.63 < 0.7).
+- `incomplete_undisclosed`: 8 flags, 0 real. Every one was "deploy/subagent is still running,
+  I'll report when it finishes". Jev cannot tell waiting on a background job from giving up.
+- `unverified` / `claimed_check`: 13 flags, ~1 real. Mostly the code facts, not Jev: a `.md` edit
+  after the tests counted as a code change, and a keyword regex did not see `grep`, `node -e`,
+  `bun -e`, `./dev` as checks.
+- `avoidable_question` never fired.
+- Lesson: "is this agent's work actually finished" needs the whole turn's context and intent;
+  a short typed judgment on the final message is not enough. A standing instruction ("if you are
+  allowed to deploy or check in a browser, do it") covers most of the real catches for free.
+
+## Result: phone-notification priority labeller (2026-09-19 to 09-23): trashed
+
+`jev-turn-label` labelled each turn's last message (done / needs_input / blocked_or_failed / info)
+to set ntfy priority and icon. 243 labels; 73 (30%) fell back to "unknown" because confidence was
+below 0.5 (not errors). It also labelled mid-turn text ("I overwrote the wrong line there; fixing
+it." → blocked_or_failed). Removed because the owner ignored the priorities in practice: cheap
+and harmless is not enough if nobody acts on the output.

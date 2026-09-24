@@ -86,13 +86,14 @@ Hono/Bun/Vue products) or `reference/jev_client.py` (Python, httpx + pydantic).
   Pydantic-model ↔ questions mapping with schema validation of answers.
 - `reference/openrouter-api.md`: exact request/response shapes and errors.
 - `reference/field-notes.md`: jev-1.13 failure modes and the observed results of
-  the form-gate experiment.
+  the form-gate, librarian, quality-gate and notification-label experiments.
 - Worked project: `/home/luis/dev/jev-tests` (live form gate: FastAPI + debounced
   textarea, `audit.py`, tests with a mocked transport; `librarian/` and `quality-gate/`
   experiments).
-- Running integrations: `~/bin/jev-turn-label` (phone notification priority, Stop hook) and
-  `~/bin/jev-quality-gate` (log-only quality gate, Stop hook, Claude Code + Codex). Both
-  read the key from `~/.config/jev/env`.
+- Retired integrations (2026-09-23, results in `reference/field-notes.md`): a Stop-hook
+  quality gate (~18% precision on 325 real turns) and a phone-notification priority
+  labeller (ignored in practice). Do not rebuild either without a new idea; judging
+  whether an agent's turn is really finished is a weak fit for Jev.
 
 ## Going deeper
 
