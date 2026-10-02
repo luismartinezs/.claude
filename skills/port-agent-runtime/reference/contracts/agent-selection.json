@@ -1,0 +1,43 @@
+{
+  "note": "A MEASURED FACT TABLE, NOT A GUESS. Every label below was checked against the installed CLI on the date named in source. Copy this file into the target and keep the source block: it is what tells the next reader which measurement they inherited, and lets them diff against the origin without a package registry.",
+  "source": {
+    "repository": "upkeepo",
+    "path": "src/agent-settings.ts",
+    "commit": "32014903370d0383c7bef81838f97f33682b71f0",
+    "sha256": "b841448e08018fada7fcd3d646655f98babeb502e9a540b00ea5e91a9257bd20",
+    "measured": "2026-09-08",
+    "proof": "upkeepo src/agent-runtimes.json, captured 2026-09-06 on ubuntu-8gb-hel1-2: one recorded CLI run per runtime x model x effort, with stdout, stderr and exit code under their hashes."
+  },
+  "runtimes": {
+    "codex": {
+      "models": ["astra", "sol", "terra", "luna", "5.5", "mini", "spark"],
+      "efforts": ["low", "medium", "high", "xhigh"]
+    },
+    "claude-code": {
+      "models": ["haiku", "sonnet", "opus", "fable"],
+      "efforts": ["low", "medium", "high", "xhigh", "max", "ultracode"]
+    }
+  },
+  "nativeModels": {
+    "astra": "gpt-6-astra",
+    "sol": "gpt-5.6-sol",
+    "terra": "gpt-5.6-terra",
+    "luna": "gpt-5.6-luna",
+    "5.5": "gpt-5.5",
+    "mini": "gpt-5.4-mini",
+    "spark": "gpt-5.3-codex-spark"
+  },
+  "capabilityOrder": {
+    "note": "Weakest first. The lists above are the accepted labels and say nothing about strength; they are not even ordered the same way for the two runtimes. Anything that raises a floor or picks a cheaper model for a cheap task needs this order, and it must live beside the labels so the two cannot drift apart.",
+    "codex": {
+      "models": ["spark", "mini", "5.5", "luna", "terra", "sol", "astra"],
+      "efforts": ["low", "medium", "high", "xhigh"]
+    },
+    "claude-code": {
+      "models": ["haiku", "sonnet", "opus", "fable"],
+      "efforts": ["low", "medium", "high", "xhigh", "max", "ultracode"]
+    }
+  },
+  "default": { "runtime": "codex", "model": "sol", "effort": "high" },
+  "fallbackOrder": ["codex", "claude-code"]
+}
