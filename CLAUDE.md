@@ -1,13 +1,18 @@
 ### Doctrine
 
-Architecture doctrine lives at `/home/luis/claymore/coding/software-architecture.md`.
-Deployment and VPS doctrine lives at `/home/luis/claymore/coding/infra.md`. Read
-them when the work touches how a product is built or shipped, not every session.
+Doctrine is a private git repo of instructions and context for coding agents,
+shared across projects: github.com/luismartinezs/doctrine. Always use the latest
+version. It is cloned at `~/doctrine`; if the clone is missing, read a file with
+`gh api repos/luismartinezs/doctrine/contents/<file> -H "Accept: application/vnd.github.raw"`.
+A reference written as `doctrine/<file>.md` means that file in this repo.
+Architecture is `doctrine/software-architecture.md`; deployment and VPS is
+`doctrine/infra.md`. Read them when the work touches how a product is built or
+shipped, not every session.
 
-A product build takes two inputs read directly by whoever builds: a functional
-spec (`docs/spec.md`, from pawaspec) and a visual contract (a `design.md` under
-`/home/luis/claymore/design/`). Neither is transcribed into an intermediate
-format first.
+A product build takes two inputs read directly by whoever builds, both in the
+product repo: a functional spec (`docs/spec.md`, from pawaspec) and a visual
+contract (`docs/design/design.md`, with its reference images and assets). Neither is transcribed into an intermediate format
+first.
 
 Grounding is per project: read `context/MEMORY.md` and `CLAUDE.md` relative to
 the project root.

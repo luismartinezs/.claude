@@ -15,9 +15,9 @@ NOT impose the reference's plan, price, cap or screen design. The
 port along with the code.
 
 Two documents govern this skill and override it on conflict:
-- `/home/luis/claymore/coding/google-oauth-stripe-setup.md`: the shared Stripe
+- `doctrine/google-oauth-stripe-setup.md`: the shared Stripe
   account policy (slug, metadata, restricted keys, one webhook per app).
-- `/home/luis/claymore/coding/software-architecture.md`: the architecture
+- `doctrine/software-architecture.md`: the architecture
   doctrine the reference layout follows.
 
 **Prerequisite: accounts and sessions.** Billing hangs off a signed-in

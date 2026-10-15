@@ -12,7 +12,7 @@ shell structure, class names, tokens and test helpers to the target. Only the
 invariants below must survive the port.
 
 The doctrine this enforces lives in
-`/home/luis/claymore/coding/software-architecture.md`, section "Loading states".
+`doctrine/software-architecture.md`, section "Loading states".
 
 ## What the feature is
 

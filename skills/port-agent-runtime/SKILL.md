@@ -15,8 +15,8 @@ plumbing to the target. Do NOT impose the reference folder structure. The
 **invariants** are what must survive; each one is pinned by a test you port
 with the code.
 
-Architecture doctrine: `/home/luis/claymore/coding/software-architecture.md`.
-Deployment doctrine: `/home/luis/claymore/coding/infra.md`.
+Architecture doctrine: `doctrine/software-architecture.md`.
+Deployment doctrine: `doctrine/infra.md`.
 
 ## FIRST: decide whether this belongs in the app at all
 

@@ -7,7 +7,7 @@ Each step leaves the target consistent (typechecks, existing tests pass).
 **First, read the target's own docs**: `CLAUDE.md`/`AGENTS.md`,
 `context/MEMORY.md`, `docs/spec.md`, `docs/architecture/`, active
 `docs/plans/`. On any conflict the target's docs override the reference. Read
-`/home/luis/claymore/coding/google-oauth-stripe-setup.md` every time: it is the
+`doctrine/google-oauth-stripe-setup.md` every time: it is the
 account policy this port implements.
 
 Answer each question; each feeds a named decision from SKILL.md. Write the

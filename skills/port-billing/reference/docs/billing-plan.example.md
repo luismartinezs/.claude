@@ -47,7 +47,7 @@ cost 2.5 to 3.6 times as much) means redoing this arithmetic.
   customer's subscriptions in Stripe. Found in the 2026-09-17 end-to-end run: a
   row written before `product_key` existed showed the paywall to a paying
   subscriber, who then paid a second time.
-- **Shared Stripe account** (`~/claymore/coding/google-oauth-stripe-setup.md`):
+- **Shared Stripe account** (`doctrine/google-oauth-stripe-setup.md`):
   Checkout sets `{ app: "pawacook", product_key: "pro" }` on the session and on
   `subscription_data`. The webhook acknowledges and ignores any event whose
   object lacks `app: "pawacook"`. Processed event ids are not recorded: every
@@ -75,7 +75,7 @@ cost 2.5 to 3.6 times as much) means redoing this arithmetic.
 
 ## Stripe setup (manual, once per mode)
 
-Follows `~/claymore/coding/google-oauth-stripe-setup.md` (slug `pawacook`).
+Follows `doctrine/google-oauth-stripe-setup.md` (slug `pawacook`).
 
 1. Product "Pawacook" with one recurring price: $29.00 USD monthly. Both carry
    metadata `app=pawacook`, `product_key=pro`. **The price metadata is

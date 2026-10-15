@@ -14,7 +14,7 @@ UI design. The **invariants** are what must survive; every one of them is
 pinned by a test you port along with the code.
 
 The architecture doctrine this was built for is
-`/home/luis/claymore/coding/software-architecture.md`. When the target follows
+`doctrine/software-architecture.md`. When the target follows
 it, the reference layout maps almost one-to-one.
 
 ## What the feature is

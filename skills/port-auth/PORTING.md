@@ -8,7 +8,7 @@ Each step leaves the target consistent (typechecks, existing tests pass).
 `context/MEMORY.md`, `docs/spec.md`, `docs/architecture/`, active
 `docs/plans/`. On any conflict the target's docs override the reference,
 including file granularity and styling, not only placement. If the target
-follows `/home/luis/claymore/coding/software-architecture.md`, read it too.
+follows `doctrine/software-architecture.md`, read it too.
 
 Answer each question; each one feeds a named decision from SKILL.md's
 adaptation points. Write the decisions into `docs/plans/auth.md` (goal,
