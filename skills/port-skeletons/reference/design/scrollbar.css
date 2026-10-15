@@ -1,0 +1,8 @@
+/*
+ * The scrollbar's room is kept whether or not the page scrolls, so a screen
+ * whose records arrive and make it taller does not shift sideways by the
+ * width of the bar that appears.
+ */
+html {
+  scrollbar-gutter: stable;
+}

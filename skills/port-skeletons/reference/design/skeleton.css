@@ -1,0 +1,14 @@
+  /*
+   * A skeleton: the shape of something that has not arrived yet, drawn where
+   * it will land so nothing moves when it does. It pulses (`animate-pulse` in
+   * the markup, behind `motion-safe:`) and carries no text of its own. It is
+   * inline, so inside the text element it stands in for it takes that
+   * element's line height and the text arrives without moving anything.
+   */
+  .skeleton {
+    display: inline-block;
+    vertical-align: middle;
+    height: 12px;
+    border-radius: var(--radius-control);
+    background: var(--color-line);
+  }

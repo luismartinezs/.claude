@@ -29,6 +29,8 @@
 # third-party skill: neither is authored here.
 skills/synced/
 skills/find-skills
+skills/reverse-engineer-anything
+skills/security-audit
 !orchestrator/
 !orchestrator/**
 orchestrator/node_modules/
